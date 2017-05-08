@@ -46,7 +46,8 @@ class database_connection(object):
 
 		self.con = sqlite3.connect(self.dbpath, timeout=1)
 
-		return self.con
+
+		return self.con.cursor()
 
 	def __exit__(self, *args):
 		
@@ -71,7 +72,6 @@ class DBInterface(object):
 
 	Attributes:
 		errors: list of errors encountered during default import.
-		table_info: dictionary containing the table names as keys, and the datatype as values.
 
 	Raises:
 		sqlite3.OperationalError: when the database is locked and unable to execute an action within 2.5 seconds.
@@ -89,12 +89,6 @@ class DBInterface(object):
 		Raises:
 			AttributeError: when the defaults argument is not a valid dictionary.
 		'''
-
-		self.key_type = 'VARCHAR(255)'
-		self.table_info = { 'OSMCBOOL' :'INTEGER',
-							'OSMCINT'  :'INTEGER',
-							'OSMCFLOAT':'REAL',
-							'OSMCSTR'  :'TEXT' }
 
 		self.errors = []
 		
@@ -124,10 +118,8 @@ class DBInterface(object):
 	def getSetting(self, key):
 		''' Retrieves the data associated with the key in the OSMC database.
 		
-		Method looks for key in bool table first, then integers, then floats, and finally strings.
-		
 		Arguments:
-			key (str): must be alphanumeric. Converted to lowercase on prior to lookup.
+			key (str): must be alphanumeric. Converted to lowercase prior to lookup.
 
 		Returns:
 			(bool|int|float|string) value associated with the provided key.
@@ -141,27 +133,12 @@ class DBInterface(object):
 		except TypeError:
 			raise TypeError('Key is not string')
 
-		key = key.lower()
+		key = key.lower()	
 
-		try:
-			return self._get_bool(key)
-		except KeyError:
-			pass
-
-		try:
-			return self._get_int(key)
-		except KeyError:
-			pass
-
-		try:
-			return self._get_float(key)
-		except KeyError:
-			pass			
-
-		return self._get_string(key)
+		return self._fetch(key)
 
 
-	def setSetting(self, key, value, datatype=None, force_overwrite=False):
+	def setSetting(self, key, value, datatype=None):
 		''' Stores a single key:value pair in the OSMC database.
 
 		Arguments:
@@ -170,8 +147,6 @@ class DBInterface(object):
 			value (bool|int|float|string): the value to be stored in the database.
 			datatype (type, optional): The type of data that is being stored. Defaults to None. This is not 
 						strictly required, but would operate as a 'type hint' and make the code easier to read.
-			force_overwrite (bool): flag to override the duplicate check and remove the instance of the key 
-						from the table in which it currently resides.
 
 		Raises:
 			KeyError: when there are duplicate keys found
@@ -186,59 +161,46 @@ class DBInterface(object):
 			raise TypeError('Key is not string')
 
 		datatype = type(value) if datatype is None else datatype
+
+		self._confirm_type(value, datatype)
+		
 		key = key.lower()
+		
+		if datatype == bool:
+			return self._fling(key,value,None,None,None)
 
-		existing_table = self._test_key_existence(key)
+		elif datatype == int:
+			return self._fling(key,None,value,None,None)
 
-		test = partial( self._test_setting,
-						key=key, 
-						value=value, 
-						datatype=datatype, 
-						existing_table=existing_table, 
-						force_overwrite=force_overwrite )
+		elif datatype == float:
+			return self._fling(key,None,None,value,None)
 
-		if datatype == int and test(table='OSMCINT'):
-				return self._set_int(key, value)
-
-		elif datatype == float and test(table='OSMCFLOAT'):
-				return self._set_float(key, value)
-
-		elif datatype == bool and test(table='OSMCBOOL'):
-				return self._set_bool(key, value)
-
-		elif test(value=str(value), datatype=str, table='OSMCSTR'):
-				return self._set_string(key, str(value))
+		else:
+			return self._fling(key,None,None,None,str(value))
 
 
 	def allPairs(self):
 		''' Returns all the data stored in the database, as a python dictionary.'''
 
-		stub = 'SELECT key, value FROM %s"'
-		q = ' UNION '.join([stub % table_name for table_name in self.table_info.keys()])
-		r = self._database_execution(q)
+		q = 'SELECT * FROM OSMCSETTINGS'
+		r = self._database_execution(q, {})
+
+		print r
+		r = [(x[0][0], self._extract_value(x)) for x in r]
 
 		return dict(r)
 
 
-	def _test_setting(self, key, value, datatype, table, existing_table, force_overwrite):
+	def _extract_value(self, result_tuple):
 
-		# test to confirm that the value is the correct type
-		try:
-			self._confirm_type(value, datatype)
-		except TypeError:
-			raise TypeError('Value does not match specified datatype (%s)' % datatype)
+		r = [(i, v) for i, v in enumerate(result_tuple[0])][1:5]
 
-		# test to confirm that the key is unique, or relates to an entry on the 
-		# table corresponding to the values datatype
-		if existing_table is not None and table != existing_table:
+		num, value = [x for x in r if x[1] is not None][0]
 
-			# force_overwrite means we drop the duplicate and write our value instead
-			if force_overwrite:
-				self._drop_setting(key, existing_table)
-			else:
-				raise KeyError('Duplicate key found for conflicting datatype: %s' % table)
+		if num == 1: # boolean datapoint
+			value = value == True
 
-		return True
+		return value
 
 
 	def _confirm_type(self, value, datatype):
@@ -247,90 +209,23 @@ class DBInterface(object):
 			raise TypeError
 
 
-	def _test_key_existence(self, key):
+	def _fetch(self, key):
 
-		stub = 'SELECT key, "%s" FROM %s WHERE key="%s"'
-		q = ' UNION '.join([stub % (table_name, table_name, key) for table_name in self.table_info.keys()])
-		r = self._database_execution(q)
-		
-		if r is None or not r:
-			return None
-		
-		# this shouldn't occur unless the user has added something manually
-		if len(r) > 1:
-			raise KeyError('Duplicate existing keys found')
-
-		return r[0][1]
-
-
-	def _fetch(self, key, from_table):
-
-		q = 'SELECT VALUE FROM %s WHERE key="%s"' % (from_table, key)
-		r = self._database_execution(q)
+		q = 'SELECT * FROM OSMCSETTINGS WHERE key=?'
+		args = [key]
+		r = self._database_execution(q, args)
 
 		if r is None or not r:
 			raise KeyError
 
-		return r[0][0]
+		return self._extract_value(r)
 
 
-	def _fling(self, key, value, to_table):
+	def _fling(self, key, value_bool, value_int, value_float, value_str):
 		
-		q = 'INSERT OR REPLACE INTO %s (key, value) VALUES ("%s", %s)' % (to_table, key, value)
-		r = self._database_execution(q)
-
-
-	def _get_string(self, key):
-		
-		return self._fetch(key, from_table='OSMCSTR')
-		
-
-	def _set_string(self, key, value):
-
-		value = '"' + value + '"'
-		
-		return self._fling(key, value, to_table='OSMCSTR')
-		
-
-	def _get_int(self, key):
-		
-		return self._fetch(key, from_table='OSMCINT')
-		
-
-	def _set_int(self, key, value):
-		
-		return self._fling(key, value, to_table='OSMCINT')
-		
-
-	def _get_bool(self, key):
-
-		if self._fetch(key, from_table='OSMCBOOL') == 1:
-			return True
-
-		return False
-		
-
-	def _set_bool(self, key, value):
-
-		value = 1 if value == True else 0
-		
-		return self._fling(key, value, to_table='OSMCBOOL')
-
-
-	def _get_float(self, key):
-		
-		return self._fetch(key, from_table='OSMCFLOAT')
-		
-
-	def _set_float(self, key, value):
-		
-		return self._fling(key, value, to_table='OSMCFLOAT')
-
-
-	def _drop_setting(self, key, table):
-
-		q = 'DELETE FROM %s WHERE key="%s"' % (table, key)
-		r = self._database_execution(q)
+		q = 'INSERT OR REPLACE INTO OSMCSETTINGS (key, value_bool, value_int, value_float, value_str) VALUES (?,?,?,?,?)'
+		args = (key, value_bool, value_int, value_float, value_str,)
+		r = self._database_execution(q, args)
 
 
 	def _check_file(self):
@@ -345,35 +240,31 @@ class DBInterface(object):
 
 	def _check_schema(self):
 
-		table_string = '","'.join(self.table_info.keys())
-
-		for table_name, datatype in self.table_info.iteritems():
-			q = 'PRAGMA table_info(%s)' % table_name
-			r = self._database_execution(q)
-			if r[0][2] != self.key_type or r[1][2] != datatype:
-					return False
+		q = 'PRAGMA table_info(OSMCSETTINGS)'
+		r = self._database_execution(q, [])
+		
+		if not r or set([x[2] for x in r]) != set(['VARCHAR(255)', 'INTEGER', 'INTEGER', 'REAL', 'TEXT']):
+			return False
 
 		return True
 		
 
 	def _create_schema(self):
 
-		for table_name, datatype in self.table_info.iteritems():
-			r = self._database_execution('DROP TABLE IF EXISTS %s' % table_name)
-			q = 'CREATE TABLE IF NOT EXISTS %s (key %s PRIMARY KEY, value %s)' % (table_name, self.key_type, datatype)
-			r = self._database_execution(q)
+		q = '''CREATE TABLE IF NOT EXISTS OSMCSETTINGS (key VARCHAR(255) PRIMARY KEY, value_bool INTEGER, value_int INTEGER, value_float REAL, value_str TEXT)'''
+		r = self._database_execution(q, [])
 		
 		return None
 
 
-	def _database_execution(self, action):
+	def _database_execution(self, action, args):
 
 		# If the database is locked, retry for 2.5 seconds before throwing an error.
 		max_time = 0
 		while max_time < 25:
 			try:
 				with database_connection(self.path) as con:	
-					return con.execute(action).fetchall()
+					return con.execute(action, args).fetchall()
 					
 			except sqlite3.OperationalError:
 				max_time += 1
@@ -385,10 +276,13 @@ class DBInterface(object):
 
 
 if __name__ == '__main__':
-	# path='C:\\t\\test.db'
-	# db = DBInterface(path)
-	# db.setSetting('a',12122, force_overwrite=True)
+
+	path='/home/kevplas16/test.db'
+	db = DBInterface(path)
+	db.setSetting('a','key;DROP TABLES')
+	db.setSetting('b',1)
+	db.allPairs()
 
 	# print db.getSetting('a')
 
-	print help(DBInterface)
+	# print help(DBInterface)
