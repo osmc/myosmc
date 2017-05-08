@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<window>
+	<include>test2</include>
+	<backgroundcolor>ff203b4c</backgroundcolor>
+	<include>test1
+	</include>
+	<defaultcontrol always="true">500</defaultcontrol>
+	<views>500</views>
+	<controls>
+		<control type="image">
+			<left>0</left>
+			<include>test2</include>
+		</control>
+	</controls>
+</window>

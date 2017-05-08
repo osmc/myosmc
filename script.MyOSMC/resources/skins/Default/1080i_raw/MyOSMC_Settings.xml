@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<window>
+	<!-- settings -->
+	<backgroundcolor>0x00000000</backgroundcolor>
+	<defaultcontrol>9000</defaultcontrol>
+	<onload condition="!String.IsEmpty(Window(settings).Property(ChangeSettingsLevel))">ClearProperty(ChangeSettingsLevel)</onload>
+	<controls>
+		<!-- Background -->
+		<include>WindowBackgroundImage</include>
+		<!-- Time -->
+		<include>Time</include>
+		<!-- List -->
+		<control id="9000" type="grouplist">
+			<left>120</left>
+			<top>240</top>
+			<width>300</width>
+			<height>870</height>
+			<itemgap>34</itemgap>
+			<onleft>noop</onleft>
+			<orientation>vertical</orientation>
+			<!-- Updates -->
+			<control id="1" type="togglebutton">
+				<include>SettingMainButton</include>
+				<label>[B]Updates[/B]</label>
+				<altlabel>[LIGHT]Updates[/LIGHT]</altlabel>
+				<usealttexture>!Control.HasFocus(1)</usealttexture>
+				<onclick>noop</onclick>
+			</control>
+			<!-- Backups -->
+			<control id="2" type="togglebutton">
+				<include>SettingMainButton</include>
+				<label>[B]Backups[/B]</label>
+				<altlabel>[LIGHT]Backups[/LIGHT]</altlabel>
+				<usealttexture>!Control.HasFocus(2)</usealttexture>
+				<onclick>noop</onclick>
+			</control>
+			<!-- Networking -->
+			<control id="3" type="togglebutton">
+				<include>SettingMainButton</include>
+				<label>[B]Networking[/B]</label>
+				<altlabel>[LIGHT]Networking[/LIGHT]</altlabel>
+				<usealttexture>!Control.HasFocus(3)</usealttexture>
+				<onclick>noop</onclick>
+			</control>
+			<!-- PiConfig -->
+			<control id="4" type="togglebutton">
+				<include>SettingMainButton</include>
+				<label>[B]PiConfig[/B]</label>
+				<altlabel>[LIGHT]PiConfig[/LIGHT]</altlabel>
+				<usealttexture>!Control.HasFocus(4)</usealttexture>
+				<onclick>noop</onclick>
+			</control>
+			<!-- Remotes -->
+			<control id="5" type="togglebutton">
+				<include>SettingMainButton</include>
+				<label>[B]Remotes[/B]</label>
+				<altlabel>[LIGHT]Remotes[/LIGHT]</altlabel>
+				<usealttexture>!Control.HasFocus(5)</usealttexture>
+				<onclick>noop</onclick>
+			</control>
+			<!-- Services -->
+			<control id="6" type="togglebutton">
+				<include>SettingMainButton</include>
+				<label>[B]Services[/B]</label>
+				<altlabel>[LIGHT]Services[/LIGHT]</altlabel>
+				<usealttexture>!Control.HasFocus(6)</usealttexture>
+				<onclick>noop</onclick>
+			</control>
+			<!-- Logging -->
+			<control id="7" type="togglebutton">
+				<include>SettingMainButton</include>
+				<label>[B]Logging[/B]</label>
+				<altlabel>[LIGHT]Logging[/LIGHT]</altlabel>
+				<usealttexture>!Control.HasFocus(7)</usealttexture>
+				<onclick>noop</onclick>
+			</control>
+			<!-- App Store -->
+			<control id="8" type="togglebutton">
+				<include>SettingMainButton</include>
+				<label>[B]App Store[/B]</label>
+				<altlabel>[LIGHT]App Store[/LIGHT]</altlabel>
+				<usealttexture>!Control.HasFocus(8)</usealttexture>
+				<onclick>noop</onclick>
+			</control>
+		</control>
+	</controls>
+</window>

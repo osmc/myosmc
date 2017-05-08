@@ -1,0 +1,109 @@
+<includes>
+	<!-- Fullscreen dimensions -->
+	<include name="FullscreenDimensions">
+		<left>0</left>
+		<top>0</top>
+		<width>1920</width>
+		<height>1080</height>
+	</include>
+	<!-- Window background image -->
+	<include name="WindowBackgroundImage">
+		<control type="image">
+			<include>FullscreenDimensions</include>
+			<texture background="true">Background.png</texture>
+			<animation effect="fade" end="100" start="0" time="200">WindowOpen</animation>
+			<animation delay="70" effect="fade" end="0" start="100" time="200">WindowClose</animation>
+			<include>VisibleFadeAnimation</include>
+			<visible>!Window.Is(visualisation) | [Window.Is(visualisation) + [Player.ShowInfo | Window.IsActive(musicosd)]]</visible>
+		</control>
+	</include>
+	<!-- Fade Animation -->
+	<include name="VisibleFadeAnimation">
+		<animation effect="fade" end="100" start="0" time="200">Visible</animation>
+		<animation effect="fade" end="0" start="100" time="200">Hidden</animation>
+	</include>
+	<!-- Time -->
+	<include name="Time">
+		<control type="label">
+			<right>120</right>
+			<top>110</top>
+			<width>1680</width>
+			<height>33</height>
+			<aligny>top</aligny>
+			<align>right</align>
+			<label>$INFO[System.Time]</label>
+			<font>Font33</font>
+			<textcolor>DialogColor1</textcolor>
+		</control>
+	</include>
+	<include name="SettingMainButton">
+		<width>300</width>
+		<height>42</height>
+		<font>Font42</font>
+		<textcolor>TextColor2</textcolor>
+		<focusedcolor>TextColor1</focusedcolor>
+		<animation condition="!ControlGroup(9000).HasFocus" effect="fade" end="70" start="100" time="0">Conditional</animation>
+	</include>
+	<include name="SettingCatIndicators">
+		<control type="group">
+			<left>500</left>
+			<top>253</top>
+			<width>30</width>
+			<height>610</height>
+			<control type="image">
+				<left>0</left>
+				<top>0</top>
+				<width>30</width>
+				<height>16</height>
+				<colordiffuse>TextColor2</colordiffuse>
+				<texture colordiffuse="DialogColor2">up.png</texture>
+				<visible>Container(5).HasPrevious</visible>
+				<animation type="Visible">
+					<effect end="100" start="0" time="200" type="Fade"/>
+					<effect end="0,0" start="0,10" time="200" type="slide"/>
+				</animation>
+				<animation type="Hidden">
+					<effect end="0" start="100" time="200" type="Fade"/>
+					<effect end="0,-10" start="0,0" time="200" type="slide"/>
+				</animation>
+			</control>
+			<control type="image">
+				<left>0</left>
+				<bottom>0</bottom>
+				<width>30</width>
+				<height>16</height>
+				<texture colordiffuse="DialogColor2">down.png</texture>
+				<visible>Container(5).HasNext</visible>
+				<animation type="Visible">
+					<effect end="100" start="0" time="200" type="Fade"/>
+					<effect end="0,0" start="0,-10" time="200" type="slide"/>
+				</animation>
+				<animation type="Hidden">
+					<effect end="0" start="100" time="200" type="Fade"/>
+					<effect end="0,10" start="0,0" time="200" type="slide"/>
+				</animation>
+			</control>
+		</control>
+	</include>
+	<include name="SideMenuAnimation">
+		<animation condition="String.IsEqual(Container(3001).NumItems,19)" effect="slide" end="0,26"  time="0">Conditional</animation>
+		<animation condition="String.IsEqual(Container(3001).NumItems,18)" effect="slide" end="0,52"  time="0">Conditional</animation>
+		<animation condition="String.IsEqual(Container(3001).NumItems,17)" effect="slide" end="0,78"  time="0">Conditional</animation>
+		<animation condition="String.IsEqual(Container(3001).NumItems,16)" effect="slide" end="0,104" time="0">Conditional</animation>
+		<animation condition="String.IsEqual(Container(3001).NumItems,15)" effect="slide" end="0,130" time="0">Conditional</animation>
+		<animation condition="String.IsEqual(Container(3001).NumItems,14)" effect="slide" end="0,156" time="0">Conditional</animation>
+		<animation condition="String.IsEqual(Container(3001).NumItems,13)" effect="slide" end="0,182" time="0">Conditional</animation>
+		<animation condition="String.IsEqual(Container(3001).NumItems,12)" effect="slide" end="0,208" time="0">Conditional</animation>
+		<animation condition="String.IsEqual(Container(3001).NumItems,11)" effect="slide" end="0,234" time="0">Conditional</animation>
+		<animation condition="String.IsEqual(Container(3001).NumItems,10)" effect="slide" end="0,260" time="0">Conditional</animation>
+		<animation condition="String.IsEqual(Container(3001).NumItems,9)"  effect="slide" end="0,286" time="0">Conditional</animation>
+		<animation condition="String.IsEqual(Container(3001).NumItems,8)"  effect="slide" end="0,312" time="0">Conditional</animation>
+		<animation condition="String.IsEqual(Container(3001).NumItems,7)"  effect="slide" end="0,338" time="0">Conditional</animation>
+		<animation condition="String.IsEqual(Container(3001).NumItems,6)"  effect="slide" end="0,364" time="0">Conditional</animation>
+		<animation condition="String.IsEqual(Container(3001).NumItems,5)"  effect="slide" end="0,390" time="0">Conditional</animation>
+		<animation condition="String.IsEqual(Container(3001).NumItems,4)"  effect="slide" end="0,416" time="0">Conditional</animation>
+		<animation condition="String.IsEqual(Container(3001).NumItems,3)"  effect="slide" end="0,442" time="0">Conditional</animation>
+		<animation condition="String.IsEqual(Container(3001).NumItems,2)"  effect="slide" end="0,468" time="0">Conditional</animation>
+		<animation condition="String.IsEqual(Container(3001).NumItems,1)"  effect="slide" end="0,494" time="0">Conditional</animation>
+	</include>
+</includes>

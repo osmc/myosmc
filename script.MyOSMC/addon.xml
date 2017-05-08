@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<addon id="script.MyOSMC2" name="MyOSMC 2.0" provider-name="KODeKarnage" version="1.9.001">
+    <requires>
+        <import addon="xbmc.python" version="2.1.0"/>
+    </requires>
+    <extension library="default.py" point="xbmc.python.script">
+        <provides>executable</provides>
+    </extension>
+    <extension library="service.py" point="xbmc.service" start="login"/>
+    <extension point="xbmc.addon.metadata">
+        <summary lang="en">MyOSMC 2.0</summary>
+        <description lang="en">MyOSMC 2.0</description>
+        <language>en</language>
+        <platform>all</platform>
+        <license>GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007</license>
+        <email/>
+        <forum/>
+        <source/>
+    </extension>
+</addon>

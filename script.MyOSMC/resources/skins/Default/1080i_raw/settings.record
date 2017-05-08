@@ -1,0 +1,140 @@
+GROUP	ID	LABEL	TYPE	DEFAULT	OPTION	VALUES	NOTE
+Backup	backup_on_update	Backup before each update (excludes manual update).	bool				 
+Backup	location_selection	Location entry method	enum			Browsed|Typed	 
+Backup	backup_location	Click to Browse	folder		writeable		 
+Backup	backup_location_typed	Click to Type	text				 
+Backup	tarball_count	Number of backup files to keep (0 for keep all)	slider		int	0,1,25	 
+Backup	backup_addons	Addons Folder	bool	TRUE			 
+Backup	backup_addon_data	Addon Data Folder	bool	TRUE			 
+Backup	backup_Database	Database Folder	bool	TRUE			 
+Backup	backup_keymaps	Keymaps Folder	bool	TRUE			 
+Backup	backup_library	Library Folder	bool	TRUE			 
+Backup	backup_peripheral_data	Peripheral_data Folder	bool	TRUE			 
+Backup	backup_playlists	Playlists Folder	bool	TRUE			 
+Backup	backup_Thumbnails	Thumbnails Folder (very large)	bool	FALSE			 
+Backup	backup_favourites	favourites.xml	bool	TRUE			 
+Backup	backup_guisettings	guisettings.xml	bool	TRUE			 
+Backup	backup_keyboard	keyboard.xml	bool	TRUE			 
+Backup	backup_remote	remote.xml	bool	TRUE			 
+Backup	backup_LCD	LCD.xml	bool	TRUE			 
+Backup	backup_profiles	profiles.xml	bool	TRUE			 
+Backup	backup_RssFeeds	RssFeeds.xml	bool	TRUE			 
+Backup	backup_sources	sources.xml	bool	TRUE			 
+Backup	backup_upnpserver	upnpserver.xml	bool	TRUE			 
+Backup	backup_fstab	/etc/fstab	bool	TRUE			 
+Backup	backup_advancedsettings	advancedsettings.xml	bool	TRUE			 
+Backup	Backup_Now	Backup Now	action			RunScript($CWD/resources/lib/call_parent.py, backup)	
+Backup	Restore_Now	Restore Now	action			RunScript($CWD/resources/lib/call_parent.py, restore)	
+Pi	non_addon_settings	Open Config.txt Editor	action		close	RunScript($CWD/resources/lib/config_editor.py)	 
+Pi_Codecs	decode_MPG2	Enter MPG2 Licence:	text				 
+Pi_Codecs	decode_WVC1	Enter WVC1 Licence:	text				 
+Pi_Display	config_hdmi_boost	config_hdmi_boost (0 to disable)	slider		int	0,1,11	 
+Pi_Display	hdmi_group	hdmi_group	enum			Auto|CEA|DMT	 
+Pi_Display	hdmi_mode	hdmi_mode (max 59 for CEA)	slider		int	0,1,86	 
+Pi_Display	hdmi_pixel_encoding	hdmi_pixel_encoding	enum			default|RGB limited|RGB full|YCbCr limited|YCbCr full	 
+Pi_Display	sdtv_aspect	sdtv_aspect	enum			Off|4:3|14:9|16:9	 
+Pi_Display	sdtv_mode	sdtv_mode	enum			NTSC|NTSC (Japan)|PAL|Pal(Brazil)	 
+Pi_Display	hdmi_edid_file	hdmi_edid_file	bool				 
+Pi_Display	hdmi_force_hotplug	hdmi_force_hotplug	bool				 
+Pi_Display	hdmi_ignore_cec	hdmi_ignore_cec	bool				 
+Pi_Display	hdmi_ignore_cec_init	hdmi_ignore_cec_init	bool				 
+Pi_Display	hdmi_ignore_edid	hdmi_ignore_edid	bool				 
+Pi_Display	hdmi_safe	hdmi_safe	bool				 
+Pi_Display	display_rotate	display_rotate	enum			0|90|180|Flip Horizontal|Flip Vertical	 
+Pi_GPIO&Memory	w1gpio	w1gpio	enum			none|w1-gpio-overlay|w1-gpio-pullup-overlay	 
+Pi_GPIO&Memory	gpu_mem_256	Set for 256mb Pi	slider		int	16,1,192	 
+Pi_GPIO&Memory	gpu_mem_512	Set for 512mb Pi	slider		int	16,1,256	 
+Pi_GPIO&Memory	gpio_out_pin	gpio_out_pin	slider		int	1,1,25	 
+Pi_GPIO&Memory	gpio_in_pin	gpio_in_pin	slider		int	1,1,25	 
+Pi_GPIO&Memory	gpu_mem_1024	Set for 1024mb Pi2	slider		int	16,1,320	 
+Pi_GPIO&Memory	gpio_in_pull	gpio_in_pull	enum			off|down|up	 
+Pi_Overclock	core_freq	core_freq	slider		int	150,500,10	 
+Pi_Overclock	arm_freq	arm_freq	slider		int	600,600,10	 
+Pi_Overclock	sdram_freq	sdram_freq	slider		int	300,400,10	 
+Pi_Overclock	initial_turbo	initial_turbo	slider		int	0,60,5	 
+Pi_Overclock	over_voltage	over_voltage	slider		int	0,8,1	 
+Pi_Overclock	over_voltage_sdram	over_voltage_sdram	slider		int	0,8,1	 
+Pi_Overclock	force_turbo	force_turbo	bool				 
+Pi_Overclock	apply_profile	Apply Profile	action				 
+Pi_Soundcard	soundcard_dac	Soundcard Overlay	enum			none|hifiberry-dac-overlay|hifiberry-dacplus-overlay|hifiberry-digi-overlay|iqaudio-dac-overlay|iqaudio-dacplus-overlay|justboom-dac-overlay|justboom-digi-overlay|allo-piano-dac-pcm512x-audio-overlay	 
+Pi_Soundcard	lirc-rpi-overlay	Enable LIRC GPIO support	bool				 
+Pi_Soundcard	spi-bcm2835-overlay	Enable SPI support	bool				 
+Update	install_now	Install available updates Now	action		close	RunScript($CWD/resources/lib/call_parent.py, install)	
+Update	update_now	Scan for updates now	action		close	RunScript($CWD/resources/lib/call_parent.py, update)	
+Update	check_day	Days before/after month-end	slider	0			
+Update	check_minute	Minute	slider	0			
+Update	check_time	Do you want to choose a specific time to check?	enum	0		Random|Specific	
+Update	on_upd_detected	When updating...	enum	0		Prompt for all actions|Display icon on home screen only|Download updates, then prompt|Download and display icon	
+Update	check_freq	How often do you want to check for updates?	enum	1		Never|Daily|Weekly|Monthly	
+Update	check_weekday	Day	enum	1		Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday	
+Update	check_hour	Hour	slider	12			
+Update	pos_x	Icon Position Horizontal (% of screen)	slider	4			
+Update	pos_y	Icon Position Vertical (% of screen)	slider	95			
+Update	home_prompts_only	Only show prompts on the Home screen	bool	FALSE			
+Update	suppress_icon	Do not show icon on home screen	bool	FALSE			
+Update	suppress_progress	Suppress on-screen progress updates	bool	FALSE			
+Update	update_on_idle	Only check for updates if system is idle for 1 minute	bool	TRUE			
+Logging	UploadNow	Upload Selected Logs Now	action	FALSE	close	RunScript($CWD/resources/lib/grablogs.py, upload)	
+Logging	CopyNow	Copy Selected Logs to SD Card Now	action	FALSE	close	RunScript($CWD/resources/lib/grablogs.py, copy)	
+Logging	all	All Configs and Logs	bool	FALSE			
+Logging	uname	Kernel Details	bool	FALSE			
+Logging	dmesg	Kernel Message Log (dmesg)	bool	FALSE			
+Logging	kodi	Kodi Log	bool	FALSE			
+Logging	config	/boot/config.txt (Pi only)	bool	FALSE			
+Logging	packages	OSMC Packages	bool	FALSE			
+Logging	allothers	All other packages	bool	FALSE			
+Logging	apt	APT Logs	bool	FALSE			
+Logging	advancedsettings	AdvancedSettings.xml	bool	FALSE			
+Logging	fstab	/etc/fstab	bool	FALSE			
+Logging	sources	Sources.xml	bool	FALSE			
+Logging	keyboard	Keyboard.xml	bool	FALSE			
+Logging	remote	Remote.xml	bool	FALSE			
+Logging	system	System Journal	bool	FALSE			
+Logging	lirc	lircd.conf	bool	FALSE			
+Logging	boot	/boot directory listing	bool	FALSE			
+Logging	initd	/etc/init.d directory listing	bool	FALSE			
+Logging	systemd	/lib/systemd/system directory listing	bool	FALSE			
+Logging	mem	Free Memory	bool	FALSE			
+Logging	diskspace	Free Diskspace	bool	FALSE			
+Logging	disp_info	Display Info	bool	FALSE			
+Logging	ifconfig	Network Interface Configuration	bool	FALSE			
+MySQL	video_toggle	Video Toggle	bool	FALSE			
+MySQL	video_name	Video Name	text				
+MySQL	video_host	Video Host	text(ip)				
+MySQL	video_port	Video Port	numeric				
+MySQL	video_user	Video User	text				
+MySQL	video_pass	Video Pass	text		hidden		
+MySQL	video_import watched status	Video Import Watched Status	bool	FALSE			
+MySQL	video_import resume point            	Video Import Resume Point            	bool	FALSE			
+MySQL	music_toggle	Music Toggle	bool	FALSE			
+MySQL	music_name	Music Name	text				
+MySQL	music_host	Music Host	text(ip)				
+MySQL	music_port	Music Port	numeric				
+MySQL	music_user	Music User	text				
+MySQL	music_pass  	Music Pass  	text		hidden		
+Network_Wired	wired_dhcp_toggle	Manual/ DHCP toggle	bool	FALSE			
+Network_Wired	wired_ipaddress	IP Address	text(ip)				
+Network_Wired	wired_subnet_mask	Subnet Mask	text(ip)				
+Network_Wired	wired_default_gateway	Default Gateway	text(ip)				
+Network_Wired	wired_primary_dns	Primary DNS	text(ip)				
+Network_Wired	wired_secondary_dns	Secondary DNS	text(ip)				
+Network_Wired	wired_apply	Apply					
+Network_Wired	wired_reset	Reset					
+Network_Wired	wired_enable_adapter	Enable Adapter	bool	FALSE			
+Network_Wired	wired_toggle_wfn_service	Toggle wait for network service	bool	FALSE			
+Network_Wireless	wireless_autoconfigure	Automatically configure the network toggle					
+Network_Wireless	wireless_ipaddress	IP Address	text(ip)				
+Network_Wireless	wireless_subnet_mask	Subnet Mask	text(ip)				
+Network_Wireless	wireless_default_gateway	Default Gateway	text(ip)				
+Network_Wireless	wireless_primary_dns	Primary DNS	text(ip)				
+Network_Wireless	wireless_secondary_dns	Secondary DNS	text(ip)				
+Network_Wireless	wireless_enable_adapter	Enable Adapter	bool	FALSE			
+Network_Wireless	wireless_apply	Apply					
+Network_Wireless	wireless_reset	Reset					
+Network_Wireless	wireless_toggle_wfn_service	Toggle wait for network service	bool	FALSE			
+Network_Bluetooth	toggle_bluetooth_adapter	Toggle Bluetooth Adapter	bool	FALSE			
+Network_Bluetooth	toggle_discovery	Toggle Discovery	bool	FALSE			
+Network_Tethering	hotspot_ssid	Hotspot SSID	text				
+Network_Tethering	hotspot_passphrase	Hotspot passphrase	text				
+Network_Tethering	wifitoggle	WiFiToggle	bool	FALSE			
+Network_Tethering	ethernettoggle	EthernetToggle	bool	FALSE			
