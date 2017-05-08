@@ -1,0 +1,17 @@
+arm_freq=900
+core_freq=450
+decode_MPG2=0xaa151312  
+decode_WVC1=0x2a4d964d  
+disable_overscan=1
+disable_splash=1
+force_turbo=0
+gpu_mem_1024=256  
+gpu_mem_256=112  
+gpu_mem_512=144  
+hdmi_ignore_cec_init=1  
+initial_turbo=0
+over_voltage=0
+over_voltage_sdram=0
+sdram_freq=450
+sdtv_aspect=1  
+start_x=1  

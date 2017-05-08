@@ -1,0 +1,5 @@
+gpu_mem_512=144  
+start_x=0
+gpu_mem_512=192 
+gpu_mem_512=100  
+sdram_freq=450

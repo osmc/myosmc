@@ -1,0 +1,13 @@
+gpu_mem_1024=255  
+disable_overscan=1
+start_x=1  
+disable_splash=1
+
+# NOOBS Auto-generated Settings:
+arm_freq=850  
+core_freq=375  
+gpu_mem_256=112  
+gpu_mem_512=143  
+decode_MPG2=0xd510a212  
+decode_WVC1=0xf457316b  
+sdtv_aspect=1  
