@@ -198,7 +198,7 @@ class DBInterface(object):
 		num, value = [x for x in r if x[1] is not None][0]
 
 		if num == 1: # boolean datapoint
-			value = value == True
+			return value == 1
 
 		return value
 
