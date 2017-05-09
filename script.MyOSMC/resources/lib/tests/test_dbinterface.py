@@ -3,7 +3,7 @@ import unittest
 import env
 
 from database.dbinterface import DBInterface, database_connection
-from test_entries import test_items, test_items_replacements
+from test_data.test_entries import test_items, test_items_replacements
 
 
 class DBInterfaceTest(unittest.TestCase):
