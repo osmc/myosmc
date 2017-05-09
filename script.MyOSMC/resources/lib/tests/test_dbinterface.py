@@ -6,6 +6,10 @@ from sqlite3 import OperationalError
 from database.dbinterface import DBInterface, database_connection, CLI
 from test_data.test_entries import test_items, test_items_replacements
 
+try:
+	WindowsError
+except NameError:
+	WindowsError = None
 
 class DBInterfaceTest(unittest.TestCase):
 
