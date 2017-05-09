@@ -52,13 +52,7 @@ class database_connection(object):
 		return self.con.cursor()
 
 	def __exit__(self, *args):
-		
-		# Try to commit the executed actions.
-		try:
-			self.con.commit()
-		except:
-			pass
-
+		self.con.commit()
 		self.con.close()
 
 
@@ -96,9 +90,6 @@ class DBInterface(object):
 		
 		self.path = DATABASE_PATH if path is None else path
 
-		if not self._check_file():
-			self._create_file()
-
 		if not self._check_schema():
 			self._create_schema()
 
@@ -110,7 +101,7 @@ class DBInterface(object):
 					try:
 						self.setSetting(key, value)
 					except Exception as e:
-						errors.append((key, e))
+						self.errors.append((key, e))
 						continue
 
 			except AttributeError:
@@ -162,16 +153,8 @@ class DBInterface(object):
 		except TypeError:
 			raise TypeError('Key is not string')
 
-		if datatype not in [int, bool, float, None]:
-			try:
-				str(value)
-			except:
-				raise TypeError('Value type not int, bool, or float and cannot be converted to a string.')
-
 		datatype = type(value) if datatype is None else datatype
 
-		self._confirm_type(value, datatype)
-		
 		key = key.lower()
 
 		if datatype == bool:
@@ -190,11 +173,7 @@ class DBInterface(object):
 			return self._fling(key,None,None,value,None)
 
 		else:
-			try:
-				value = str(value)
-			except:
-				raise TypeError('Value cannot be converted to a string.')
-			return self._fling(key,None,None,None,value)
+			return self._fling(key,None,None,None,str(value))
 
 
 	def allPairs(self):
@@ -203,7 +182,7 @@ class DBInterface(object):
 		q = 'SELECT * FROM OSMCSETTINGS'
 		r = self._database_execution(q, {})
 
-		r = [(x[0][0], self._extract_value([x])) for x in r]
+		r = [(x[0], self._extract_value([x])) for x in r]
 
 		return dict(r)
 
@@ -248,16 +227,6 @@ class DBInterface(object):
 		return r
 
 
-	def _check_file(self):
-
-		return os.path.isfile(self.path)
-
-
-	def _create_file(self):
-
-		return self._create_schema()
-
-
 	def _check_schema(self):
 
 		q = 'PRAGMA table_info(OSMCSETTINGS)'
@@ -294,37 +263,36 @@ class DBInterface(object):
 			raise sqlite3.OperationalError
 
 
+def CLI(args, provided_db=None):
+	global DATABASE_PATH
 
-if __name__ == '__main__':
+	DATABASE_PATH = provided_db if provided_db is not None else DATABASE_PATH
 
-	# DATABASE_PATH='C:\\t\\test.db'
+	response = []
+	
+	if len(args) <= 1:
+		response.append('add help')
 
-	if len(sys.argv) <= 1:
-		print('add help')
-
-	elif len(sys.argv) == 2:
-		if sys.argv[1] == '-a':
-			try:
-				kv = DBInterface().allPairs().items()
-				print('%-20s %-20s' % ('\n Key',' Value'))
-				print('-------------------- --------------------')
-				kv.sort()
-				for k, v in kv:
-					print('%-20s %-20s' % (k,v))
-				print('\n-----------------------------------------')
-			except KeyError:
-				print('No data found in db.')
+	elif len(args) == 2:
+		if args[1] == '-a':
+			kv = DBInterface().allPairs().items()
+			response.append('%-20s %-20s' % ('\n Key',' Value'))
+			response.append('-------------------- --------------------')
+			kv.sort()
+			for k, v in kv:
+				response.append('%-20s %-20s' % (k,v))
+			response.append('\n-----------------------------------------')
 
 		else:
 			# process a GET request using the default db location
-			r = DBInterface().getSetting(sys.argv[1])
-			print(r)
+			r = DBInterface().getSetting(args[1])
+			response.append(str(r))
 
-	elif len(sys.argv) == 3:
+	elif len(args) == 3:
 		# process a SET request with the default db location
-		key = sys.argv[1]
-		value = sys.argv[2]
-		if value in ['true', 'True','TRUE','false','False','FALSE']:
+		key = args[1]
+		value = args[2]
+		if value.lower() in ['true','false']:
 			DBInterface().setSetting(key, bool(value), bool)
 		else:
 			try:
@@ -334,36 +302,32 @@ if __name__ == '__main__':
 					DBInterface().setSetting(key, float(value), float) 
 				except ValueError:
 					DBInterface().setSetting(key, value)
-		print('Set "%s" as "%s"' % (sys.argv[1], sys.argv[2]))
+		response.append('Set "%s" as "%s"' % (args[1], args[2]))
 
-	elif len(sys.argv) == 4:
-		if sys.argv[1] == '-d':
-			DATABASE_PATH = sys.argv[2]
-			if sys.argv[3] == '-a':
-				try:
-					kv = DBInterface().allPairs().items()
-					print('%-20s %-20s' % ('\n Key',' Value'))
-					print('-------------------- --------------------')
-					kv.sort()
-					for k, v in kv:
-						print('%-20s %-20s' % (k,v))
-					print('\n-----------------------------------------')
-				except KeyError:
-					print('No data found in db.')
+	elif len(args) == 4:
+		if args[1] == '-d':
+			DATABASE_PATH = args[2]
+			if args[3] == '-a':
+				kv = DBInterface().allPairs().items()
+				response.append('%-20s %-20s' % ('\n Key',' Value'))
+				response.append('-------------------- --------------------')
+				kv.sort()
+				for k, v in kv:
+					response.append('%-20s %-20s' % (k,v))
+				response.append('\n-----------------------------------------')
 			else:
 				# process a GET request with a provided db location
-				r = DBInterface().getSetting(sys.argv[3])
-				print(r)
+				r = DBInterface().getSetting(args[3])
+				response.append(str(r))
 		else:
-			print('add help')
+			response.append('add help')
 
 	else:
-		if sys.argv[1] == '-d':
+		if args[1] == '-d':
 			# process a SET request with a provided db location
-			DATABASE_PATH = sys.argv[2]
-			key = sys.argv[3]
-			value = sys.argv[4]
-
+			DATABASE_PATH = args[2]
+			key = args[3]
+			value = args[4]
 			if value in ['true', 'True','TRUE','false','False','FALSE']:
 				DBInterface().setSetting(key, bool(value), bool)
 			else:
@@ -375,6 +339,14 @@ if __name__ == '__main__':
 					except ValueError:
 						DBInterface().setSetting(key, value)
 
-			print('Set "%s" as "%s"' % (sys.argv[3], sys.argv[4]))
+			response.append('Set "%s" as "%s"' % (args[3], args[4]))
 		else:
-			print('add help')
+			response.append('add help')
+	
+	return '\n'.join(response)
+
+
+if __name__ == '__main__':   # pragma: no cover
+
+	# DATABASE_PATH='C:\\t\\test.db'
+	print(CLI(sys.argv))
