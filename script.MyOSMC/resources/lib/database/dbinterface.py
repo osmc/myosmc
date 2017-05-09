@@ -22,9 +22,11 @@
 #  
 #  
 
+from __future__ import print_function
 from functools import partial
 import os
 import sqlite3
+import sys
 from time import sleep
 
 
@@ -295,12 +297,84 @@ class DBInterface(object):
 
 if __name__ == '__main__':
 
-	path='c:\\t\\test.db'
-	db = DBInterface(path)
-	print db.setSetting('a','key;DROP TABLES')
-	print db.getSetting('a')
-	print db.allPairs()
+	# DATABASE_PATH='C:\\t\\test.db'
 
-	# print db.getSetting('a')
+	if len(sys.argv) <= 1:
+		print('add help')
 
-	# print help(DBInterface)
+	elif len(sys.argv) == 2:
+		if sys.argv[1] == '-a':
+			try:
+				kv = DBInterface().allPairs().items()
+				print('%-20s %-20s' % ('\n Key',' Value'))
+				print('-------------------- --------------------')
+				kv.sort()
+				for k, v in kv:
+					print('%-20s %-20s' % (k,v))
+				print('\n-----------------------------------------')
+			except KeyError:
+				print('No data found in db.')
+
+		else:
+			# process a GET request using the default db location
+			r = DBInterface().getSetting(sys.argv[1])
+			print(r)
+
+	elif len(sys.argv) == 3:
+		# process a SET request with the default db location
+		key = sys.argv[1]
+		value = sys.argv[2]
+		if value in ['true', 'True','TRUE','false','False','FALSE']:
+			DBInterface().setSetting(key, bool(value), bool)
+		else:
+			try:
+				DBInterface().setSetting(key, int(value), int) 
+			except ValueError:
+				try:
+					DBInterface().setSetting(key, float(value), float) 
+				except ValueError:
+					DBInterface().setSetting(key, value)
+		print('Set "%s" as "%s"' % (sys.argv[1], sys.argv[2]))
+
+	elif len(sys.argv) == 4:
+		if sys.argv[1] == '-d':
+			DATABASE_PATH = sys.argv[2]
+			if sys.argv[3] == '-a':
+				try:
+					kv = DBInterface().allPairs().items()
+					print('%-20s %-20s' % ('\n Key',' Value'))
+					print('-------------------- --------------------')
+					kv.sort()
+					for k, v in kv:
+						print('%-20s %-20s' % (k,v))
+					print('\n-----------------------------------------')
+				except KeyError:
+					print('No data found in db.')
+			else:
+				# process a GET request with a provided db location
+				r = DBInterface().getSetting(sys.argv[3])
+				print(r)
+		else:
+			print('add help')
+
+	else:
+		if sys.argv[1] == '-d':
+			# process a SET request with a provided db location
+			DATABASE_PATH = sys.argv[2]
+			key = sys.argv[3]
+			value = sys.argv[4]
+
+			if value in ['true', 'True','TRUE','false','False','FALSE']:
+				DBInterface().setSetting(key, bool(value), bool)
+			else:
+				try:
+					DBInterface().setSetting(key, int(value), int) 
+				except ValueError:
+					try:
+						DBInterface().setSetting(key, float(value), float) 
+					except ValueError:
+						DBInterface().setSetting(key, value)
+
+			print('Set "%s" as "%s"' % (sys.argv[3], sys.argv[4]))
+		else:
+			print('add help')
