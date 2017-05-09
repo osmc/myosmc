@@ -8,11 +8,11 @@
     </extension>
     <extension library="service.py" point="xbmc.service" start="login"/>
     <extension point="xbmc.addon.metadata">
-        <summary lang="en">MyOSMC 2.0</summary>
-        <description lang="en">MyOSMC 2.0</description>
+        <summary lang="en">My OSMC</summary>
+        <description lang="en">My OSMC</description>
         <language>en</language>
         <platform>all</platform>
-        <license>GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007</license>
+        <license>GNU GENERAL PUBLIC LICENSE. Version 2, June 1991</license>
         <email/>
         <forum/>
         <source/>
