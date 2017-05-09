@@ -20,6 +20,8 @@ class DBInterfaceTest(unittest.TestCase):
 			os.remove(self.testdb)
 		except IOError:
 			pass
+		except OSError:
+			pass
 		except WindowsError:
 			pass
 
