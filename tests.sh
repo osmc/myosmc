@@ -3,7 +3,7 @@
 pushd script.MyOSMC/resources/lib
 
 # Run pylint
-pylint .
+pylint $(pwd)
 
 # Run unit tests
 
