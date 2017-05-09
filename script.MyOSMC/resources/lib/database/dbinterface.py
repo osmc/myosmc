@@ -160,23 +160,39 @@ class DBInterface(object):
 		except TypeError:
 			raise TypeError('Key is not string')
 
+		if datatype not in [int, bool, float, None]:
+			try:
+				str(value)
+			except:
+				raise TypeError('Value type not int, bool, or float and cannot be converted to a string.')
+
 		datatype = type(value) if datatype is None else datatype
 
 		self._confirm_type(value, datatype)
 		
 		key = key.lower()
-		
+
 		if datatype == bool:
+			if not isinstance(value, bool): 
+				raise TypeError('Value type does not match type provided.')
 			return self._fling(key,value,None,None,None)
 
 		elif datatype == int:
+			if not isinstance(value, int): 
+				raise TypeError('Value type does not match type provided.')
 			return self._fling(key,None,value,None,None)
 
 		elif datatype == float:
+			if not isinstance(value, float): 
+				raise TypeError('Value type does not match type provided.')
 			return self._fling(key,None,None,value,None)
 
 		else:
-			return self._fling(key,None,None,None,str(value))
+			try:
+				value = str(value)
+			except:
+				raise TypeError('Value cannot be converted to a string.')
+			return self._fling(key,None,None,None,value)
 
 
 	def allPairs(self):
@@ -185,8 +201,7 @@ class DBInterface(object):
 		q = 'SELECT * FROM OSMCSETTINGS'
 		r = self._database_execution(q, {})
 
-		print r
-		r = [(x[0][0], self._extract_value(x)) for x in r]
+		r = [(x[0][0], self._extract_value([x])) for x in r]
 
 		return dict(r)
 
@@ -199,6 +214,9 @@ class DBInterface(object):
 
 		if num == 1: # boolean datapoint
 			return value == 1
+
+		elif value == 'None': # string None values should be restored to actual None
+			value = None
 
 		return value
 
@@ -214,7 +232,6 @@ class DBInterface(object):
 		q = 'SELECT * FROM OSMCSETTINGS WHERE key=?'
 		args = [key]
 		r = self._database_execution(q, args)
-
 		if r is None or not r:
 			raise KeyError
 
@@ -226,6 +243,7 @@ class DBInterface(object):
 		q = 'INSERT OR REPLACE INTO OSMCSETTINGS (key, value_bool, value_int, value_float, value_str) VALUES (?,?,?,?,?)'
 		args = (key, value_bool, value_int, value_float, value_str,)
 		r = self._database_execution(q, args)
+		return r
 
 
 	def _check_file(self):
@@ -277,11 +295,11 @@ class DBInterface(object):
 
 if __name__ == '__main__':
 
-	path='/home/kevplas16/test.db'
+	path='c:\\t\\test.db'
 	db = DBInterface(path)
-	db.setSetting('a','key;DROP TABLES')
-	db.setSetting('b',1)
-	db.allPairs()
+	print db.setSetting('a','key;DROP TABLES')
+	print db.getSetting('a')
+	print db.allPairs()
 
 	# print db.getSetting('a')
 
