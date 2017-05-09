@@ -1,7 +1,10 @@
 #!/bin/bash
 
+pushd script.MyOSMC/resources/lib
+
 # Run pylint
-pylint script.MyOSMC/resources/lib
+pylint .
 
 # Run unit tests
 
+pytest
