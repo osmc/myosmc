@@ -262,33 +262,57 @@ class DBInterface(object):
 		else:
 			raise sqlite3.OperationalError
 
+def get_all_settings():
+	response = []
+
+	kv = DBInterface().allPairs().items()
+	response.append('%-20s %-20s' % ('\n Key',' Value'))
+	response.append('-------------------- --------------------')
+	kv.sort()
+	for k, v in kv:
+		response.append('%-20s %-20s' % (k,v))
+	response.append('\n-----------------------------------------')
+	return response
+
+def get_setting(key):
+	try:
+		r = DBInterface().getSetting(key)
+	except KeyError:
+		r = "KeyError: Key not found in database"
+	return r
 
 def CLI(args, provided_db=None):
 	global DATABASE_PATH
 
 	DATABASE_PATH = provided_db if provided_db is not None else DATABASE_PATH
 
+	running_as = os.path.split(args[0])[1].lower() # Get the context we are running as, if called as a sym link
+
 	response = []
 	
-	if len(args) <= 1:
+	if len(args) <= 1 and running_as != 'osmc_getprefs':
 		response.append('add help')
+
+	elif running_as == 'osmc_getprefs':
+		if len(args) == 1:
+			response = get_all_settings()
+
+		elif len(args) == 2:
+			response.append(get_setting(args[1]))
+
+		else:
+			response.append('add help')
 
 	elif len(args) == 2:
 		if args[1] == '-a':
-			kv = DBInterface().allPairs().items()
-			response.append('%-20s %-20s' % ('\n Key',' Value'))
-			response.append('-------------------- --------------------')
-			kv.sort()
-			for k, v in kv:
-				response.append('%-20s %-20s' % (k,v))
-			response.append('\n-----------------------------------------')
+			response = get_all_settings()
 
 		else:
 			# process a GET request using the default db location
-			r = DBInterface().getSetting(args[1])
+			r = get_setting(args[1])
 			response.append(str(r))
 
-	elif len(args) == 3:
+	elif len(args) == 3: # No magic needed for osmc_setprefs, as it will still have 3 args
 		# process a SET request with the default db location
 		key = args[1]
 		value = args[2]
