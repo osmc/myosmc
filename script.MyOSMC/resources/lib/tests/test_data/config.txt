@@ -1,0 +1,5 @@
+#arm_freq=900
+core_freq=450
+force_turbo=0
+initial_turbo=0
+sdram_freq=450
