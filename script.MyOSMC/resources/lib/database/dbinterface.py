@@ -295,7 +295,7 @@ def CLI(args, provided_db=None):
 
 	elif running_as == 'osmc_getprefs':
 		if len(args) == 1:
-			response += get_all_settings()
+			response = get_all_settings()
 
 		elif len(args) == 2:
 			response.append(get_setting(args[1]))
@@ -305,7 +305,7 @@ def CLI(args, provided_db=None):
 
 	elif len(args) == 2:
 		if args[1] == '-a':
-			response =+ get_all_settings()
+			response = get_all_settings()
 
 		else:
 			# process a GET request using the default db location
