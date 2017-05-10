@@ -9,13 +9,14 @@ from test_data.test_entries import test_items, test_items_replacements
 
 class fresh_database(object):   # pragma: no cover
 
-	def __init__(self, dbpath):
+	def __init__(self, dbpath, defaults=None):
 
 		self.dbpath = dbpath
+		self.defaults = defaults
 
 	def __enter__(self, *args, **kwargs):
 
-		self.db = DBInterface(self.dbpath)
+		self.db = DBInterface(self.dbpath, defaults=self.defaults)
 
 		return self.db
 	
@@ -157,19 +158,19 @@ class DBInterfaceTest(unittest.TestCase):
 
 	
 	def test_default_processing(self):
-		self.assertIsInstance(DBInterface(self.dbpath, defaults=test_items), DBInterface, msg='Processing default changes class type')
+		with fresh_database(self.dbpath, test_items) as db:
+			self.assertIsInstance(db, DBInterface, msg='Processing default changes class type')
 
 	
 	def test_default_results(self):
-		db = DBInterface(self.dbpath, defaults=test_items)
-		self.assertEqual(len(db.errors), 0, msg='Importing of defaults throws error(s):\n%s' % ('\n'.join(db.errors)))
+		with fresh_database(self.dbpath, test_items) as db:
+			self.assertEqual(len(db.errors), 0, msg='Importing of defaults throws error(s):\n%s' % ('\n'.join(db.errors)))
 
 	
 	def test_default_values(self):
-		db = DBInterface(self.dbpath, defaults=test_items)
-
-		for k, v in test_items.iteritems():
-			self.assertEqual(db.getSetting(k), v, msg='Value added as default, different to original (%s)' % k)
+		with fresh_database(self.dbpath, test_items) as db:
+			for k, v in test_items.iteritems():
+				self.assertEqual(db.getSetting(k), v, msg='Value added as default, different to original (%s)' % k)
 
 	
 	def test_CLI(self):
@@ -189,9 +190,11 @@ class DBInterfaceTest(unittest.TestCase):
 	
 	def test_bad_default_dict(self):
 		with self.assertRaises(AttributeError):
-			DBInterface(self.dbpath, defaults=[])
+			with fresh_database(self.dbpath, []) as db:
+				pass   # pragma: no cover
 
 	
 	def test_bad_default_key(self):
-		db = DBInterface(self.dbpath, defaults={1:'a'})
-		self.assertEqual(len(db.errors), 1)
+		defaults = {1:'a'}
+		with fresh_database(self.dbpath, defaults) as db:
+			self.assertEqual(len(db.errors), 1)
