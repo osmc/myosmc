@@ -6,210 +6,192 @@ from sqlite3 import OperationalError
 from database.dbinterface import DBInterface, database_connection, CLI
 from test_data.test_entries import test_items, test_items_replacements
 
-try:
-	WindowsError
-except NameError:
-	WindowsError = None
+
+class fresh_database(object):   # pragma: no cover
+
+	def __init__(self, dbpath):
+
+		self.dbpath = dbpath
+
+	def __enter__(self, *args, **kwargs):
+
+		self.db = DBInterface(self.dbpath)
+
+		return self.db
+	
+	def __exit__(self, *args, **kwargs):
+
+		os.remove(self.dbpath)
+
 
 class DBInterfaceTest(unittest.TestCase):
 
 	
 	def setUp(self):
-		self.testdb = 'test.db'
+		self.dbpath = 'test.db'
 		try:
-			os.remove(self.testdb)
-		except IOError:
+			os.remove(self.dbpath)
+		except IOError:   # pragma: no cover
 			pass
-		except OSError:
+		except OSError:   # pragma: no cover
 			pass
-		except WindowsError:
+		except WindowsError:   # pragma: no cover
 			pass
 
 	
 	def tearDown(self):
 		try:
-			os.remove(self.testdb)
+			os.remove(self.dbpath)
 		except:
 			pass
 
 	
 	def test_setting(self):
-		db = DBInterface(self.testdb)
-		for k, v in test_items.iteritems():
-			self.assertEqual(db.setSetting(k, v), [], msg='Failed to set (%s, %s)' % (k, v))
-		os.remove(self.testdb)
+		with fresh_database(self.dbpath) as db:
+			for k, v in test_items.iteritems():
+				self.assertEqual(db.setSetting(k, v), [], msg='Failed to set (%s, %s)' % (k, v))
 
 	
 	def test_getting(self):
-		db = DBInterface(self.testdb)
+		with fresh_database(self.dbpath) as db:
+			for k, v in test_items.iteritems():
+				self.assertEqual(db.setSetting(k, v), [], msg='Failed to set (%s, %s)' % (k, v))
 
-		for k, v in test_items.iteritems():
-			self.assertEqual(db.setSetting(k, v), [], msg='Failed to set (%s, %s)' % (k, v))
-
-		for k, v in test_items.iteritems():
-			self.assertEqual(db.getSetting(k), v, msg='Failed to get (%s)' % (k))
-		os.remove(self.testdb)
+			for k, v in test_items.iteritems():
+				self.assertEqual(db.getSetting(k), v, msg='Failed to get (%s)' % (k))
 
 	
 	def test_allPairs_returntype(self):
-		db = DBInterface(self.testdb)
+		with fresh_database(self.dbpath) as db:
+			for k, v in test_items.iteritems():
+				self.assertEqual(db.setSetting(k, v), [], msg='Failed to set (%s, %s)' % (k, v))
 
-		for k, v in test_items.iteritems():
-			self.assertEqual(db.setSetting(k, v), [], msg='Failed to set (%s, %s)' % (k, v))
-
-		self.assertIsInstance(db.allPairs(), dict, msg='Output of allPairs is not a dict')
-		os.remove(self.testdb)
+			self.assertIsInstance(db.allPairs(), dict, msg='Output of allPairs is not a dict')
 
 	
 	def test_allPairs(self):
-		db = DBInterface(self.testdb)
+		with fresh_database(self.dbpath) as db:
+			for k, v in test_items.iteritems():
+				self.assertEqual(db.setSetting(k, v), [], msg='Failed to set (%s, %s)' % (k, v))
 
-		for k, v in test_items.iteritems():
-			self.assertEqual(db.setSetting(k, v), [], msg='Failed to set (%s, %s)' % (k, v))
-
-		ap = db.allPairs()
-		for k, v in test_items.iteritems():
-			self.assertIn(k, ap, msg='Key (%s) not found in allPairs' % k)
-			self.assertEqual(ap[k], v, msg='Value in allPairs not equal to original item')
-		os.remove(self.testdb)			
+			ap = db.allPairs()
+			for k, v in test_items.iteritems():
+				self.assertIn(k, ap, msg='Key (%s) not found in allPairs' % k)
+				self.assertEqual(ap[k], v, msg='Value in allPairs not equal to original item')
 
 	
 	def test_unknownkey(self):
-		db = DBInterface(self.testdb)
-		with self.assertRaises(KeyError):
-			db.getSetting('unknownkey')
-		os.remove(self.testdb)					
+		with fresh_database(self.dbpath) as db:
+			with self.assertRaises(KeyError):
+				db.getSetting('unknownkey')
 
 	
 	def test_bool_type_mismatch(self):
-		db = DBInterface(self.testdb)
-		with self.assertRaises(TypeError):
-			db.setSetting('a', 1, datatype=bool)
-		os.remove(self.testdb)	
+		with fresh_database(self.dbpath) as db:
+			with self.assertRaises(TypeError):
+				db.setSetting('a', 1, datatype=bool)
 
 	
 	def test_int_type_mismatch(self):
-		db = DBInterface(self.testdb)
-		with self.assertRaises(TypeError):
-			db.setSetting('a', 'test', datatype=int)
-		os.remove(self.testdb)	
+		with fresh_database(self.dbpath) as db:
+			with self.assertRaises(TypeError):
+				db.setSetting('a', 'test', datatype=int)
 
 	
 	def test_float_type_mismatch(self):
-		db = DBInterface(self.testdb)
-		with self.assertRaises(TypeError):
-			db.setSetting('a', 'test', datatype=float)
-		os.remove(self.testdb)	
+		with fresh_database(self.dbpath) as db:
+			with self.assertRaises(TypeError):
+				db.setSetting('a', 'test', datatype=float)
 
 	
 	def test_keynotstring_set(self):
-		db = DBInterface(self.testdb)
-		with self.assertRaises(TypeError):
-			db.setSetting(1, 'a')
-		os.remove(self.testdb)		
+		with fresh_database(self.dbpath) as db:
+			with self.assertRaises(TypeError):
+				db.setSetting(1, 'a')
 
 	
 	def test_keynotstring_get(self):
-		db = DBInterface(self.testdb)
-		with self.assertRaises(TypeError):
-			db.getSetting(1)
-		os.remove(self.testdb)				
+		with fresh_database(self.dbpath) as db:
+			with self.assertRaises(TypeError):
+				db.getSetting(1)
 
 
 	def test_wrongschema_startup(self):
-		db = DBInterface(self.testdb)
-		db._database_execution('DROP TABLE OSMCSETTINGS', [])
-		q = 'CREATE TABLE IF NOT EXISTS OSMCSETTINGS (key VARCHAR(255) PRIMARY KEY, value_bool TEXT, value_int TEXT, value_float BOOLEAN, value_str BOOLEAN)'
-		db._database_execution(q, [])
-		self.assertEqual(db._check_schema(), False)
-		os.remove(self.testdb)		
-
+		with fresh_database(self.dbpath) as db:
+			db._database_execution('DROP TABLE OSMCSETTINGS', [])
+			q = 'CREATE TABLE IF NOT EXISTS OSMCSETTINGS (key VARCHAR(255) PRIMARY KEY, value_bool TEXT, value_int TEXT, value_float BOOLEAN, value_str BOOLEAN)'
+			db._database_execution(q, [])
+			self.assertEqual(db._check_schema(), False)
 
 	
 	def test_wrongscheme(self):
-		db = DBInterface(self.testdb)
-		db._database_execution('DROP TABLE OSMCSETTINGS', [])
-		q = 'CREATE TABLE IF NOT EXISTS OSMCSETTINGS (key VARCHAR(255) PRIMARY KEY, value_bool TEXT, value_int TEXT, value_float BOOLEAN, value_str BOOLEAN)'
-		db._database_execution(q, [])
-		self.assertEqual(db._check_schema(), False)
-		os.remove(self.testdb)		
+		with fresh_database(self.dbpath) as db:
+			db._database_execution('DROP TABLE OSMCSETTINGS', [])
+			q = 'CREATE TABLE IF NOT EXISTS OSMCSETTINGS (key VARCHAR(255) PRIMARY KEY, value_bool TEXT, value_int TEXT, value_float BOOLEAN, value_str BOOLEAN)'
+			db._database_execution(q, [])
+			self.assertEqual(db._check_schema(), False)
 
 	
 	def test_sqlerror(self):
-		db = DBInterface(self.testdb)
-		with self.assertRaises(OperationalError):
-			db._database_execution('SELECT "', [])
+		with fresh_database(self.dbpath) as db:
+			with self.assertRaises(OperationalError):
+				db._database_execution('SELECT "', [])
 
 	
 	def test_replacement_setting(self):
-		db = DBInterface(self.testdb)		
-
-		for k, v in test_items.iteritems():
-			self.assertEqual(db.setSetting(k, v), [], msg='Failed to set (%s, %s)' % (k, v))
-			
-		for k, v in test_items_replacements.iteritems():
-			self.assertEqual(db.setSetting(k, v), [], msg='Failed to set replacement (%s, %s)' % (k, v))
-		os.remove(self.testdb)	
+		with fresh_database(self.dbpath) as db:		
+			for k, v in test_items.iteritems():
+				self.assertEqual(db.setSetting(k, v), [], msg='Failed to set (%s, %s)' % (k, v))
+				
+			for k, v in test_items_replacements.iteritems():
+				self.assertEqual(db.setSetting(k, v), [], msg='Failed to set replacement (%s, %s)' % (k, v))
 
 	
 	def test_replacement_getting(self):
-		db = DBInterface(self.testdb)	
-
-		for k, v in test_items_replacements.iteritems():
-			self.assertEqual(db.setSetting(k, v), [], msg='Failed to set replacement (%s, %s)' % (k, v))
-		
-		for k, v in test_items_replacements.iteritems():
-			self.assertEqual(db.getSetting(k), v, msg='Failed to get replacement (%s)' % (k))	
-		os.remove(self.testdb)	
+		with fresh_database(self.dbpath) as db:	
+			for k, v in test_items_replacements.iteritems():
+				self.assertEqual(db.setSetting(k, v), [], msg='Failed to set replacement (%s, %s)' % (k, v))
+			
+			for k, v in test_items_replacements.iteritems():
+				self.assertEqual(db.getSetting(k), v, msg='Failed to get replacement (%s)' % (k))	
 
 	
 	def test_default_processing(self):
-		self.assertIsInstance(DBInterface(self.testdb, defaults=test_items), DBInterface, msg='Processing default changes class type')
-		os.remove(self.testdb)
+		self.assertIsInstance(DBInterface(self.dbpath, defaults=test_items), DBInterface, msg='Processing default changes class type')
 
 	
 	def test_default_results(self):
-		db = DBInterface(self.testdb, defaults=test_items)
+		db = DBInterface(self.dbpath, defaults=test_items)
 		self.assertEqual(len(db.errors), 0, msg='Importing of defaults throws error(s):\n%s' % ('\n'.join(db.errors)))
-		os.remove(self.testdb)
 
 	
 	def test_default_values(self):
-		db = DBInterface(self.testdb, defaults=test_items)
+		db = DBInterface(self.dbpath, defaults=test_items)
 
 		for k, v in test_items.iteritems():
 			self.assertEqual(db.getSetting(k), v, msg='Value added as default, different to original (%s)' % k)
-		os.remove(self.testdb)
 
 	
 	def test_CLI(self):
 		
 		for value in ['True', '1234','1.01','None']:
-
 			self.assertEqual(CLI(['dbinterface.py']), 'add help')
-			self.assertEqual(CLI(['dbinterface.py', '-d', self.testdb, 'a', str(value)]), 'Set "a" as "%s"' % value)
-			self.assertEqual(CLI(['dbinterface.py', '-d', self.testdb, 'a']), str(value))
-			self.assertEqual(len(CLI(['dbinterface.py', '-d', self.testdb, '-a'])), 168)
 
-			self.assertEqual(CLI(['dbinterface.py', '-z', self.testdb, 'a', str(value)]), 'add help')
-			self.assertEqual(CLI(['dbinterface.py', '-z', self.testdb, 'a']), 'add help')
-			self.assertEqual(CLI(['dbinterface.py', '-z', self.testdb, '-a']), 'add help')
-			os.remove(self.testdb)
+			self.assertEqual(CLI(['dbinterface.py'], provided_db=self.dbpath), 'add help')
+			self.assertEqual(CLI(['dbinterface.py', 'a', str(value)], provided_db=self.dbpath), 'Set "a" as "%s"' % value)
 
-			self.assertEqual(CLI(['dbinterface.py'], provided_db=self.testdb), 'add help')
-			self.assertEqual(CLI(['dbinterface.py', 'a', str(value)], provided_db=self.testdb), 'Set "a" as "%s"' % value)
+			self.assertEqual(CLI(['dbinterface.py', 'a'], provided_db=self.dbpath), str(value))
+			self.assertEqual(len(CLI(['dbinterface.py', '-a'], provided_db=self.dbpath)), 168)
 
-			self.assertEqual(CLI(['dbinterface.py', 'a'], provided_db=self.testdb), str(value))
-			self.assertEqual(len(CLI(['dbinterface.py', '-a'], provided_db=self.testdb)), 168)
-			os.remove(self.testdb)
+			# too many arguments
+			self.assertEqual(CLI(['dbinterface.py', 'a', 'b', 'c'], provided_db=self.dbpath), 'add help')
 
 	
 	def test_bad_default_dict(self):
 		with self.assertRaises(AttributeError):
-			DBInterface(self.testdb, defaults=[])
+			DBInterface(self.dbpath, defaults=[])
 
 	
 	def test_bad_default_key(self):
-		db = DBInterface(self.testdb, defaults={1:'a'})
+		db = DBInterface(self.dbpath, defaults={1:'a'})
 		self.assertEqual(len(db.errors), 1)
-		os.remove(self.testdb)

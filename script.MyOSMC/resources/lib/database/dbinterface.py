@@ -304,44 +304,8 @@ def CLI(args, provided_db=None):
 					DBInterface().setSetting(key, value)
 		response.append('Set "%s" as "%s"' % (args[1], args[2]))
 
-	elif len(args) == 4:
-		if args[1] == '-d':
-			DATABASE_PATH = args[2]
-			if args[3] == '-a':
-				kv = DBInterface().allPairs().items()
-				response.append('%-20s %-20s' % ('\n Key',' Value'))
-				response.append('-------------------- --------------------')
-				kv.sort()
-				for k, v in kv:
-					response.append('%-20s %-20s' % (k,v))
-				response.append('\n-----------------------------------------')
-			else:
-				# process a GET request with a provided db location
-				r = DBInterface().getSetting(args[3])
-				response.append(str(r))
-		else:
-			response.append('add help')
-
 	else:
-		if args[1] == '-d':
-			# process a SET request with a provided db location
-			DATABASE_PATH = args[2]
-			key = args[3]
-			value = args[4]
-			if value in ['true', 'True','TRUE','false','False','FALSE']:
-				DBInterface().setSetting(key, bool(value), bool)
-			else:
-				try:
-					DBInterface().setSetting(key, int(value), int) 
-				except ValueError:
-					try:
-						DBInterface().setSetting(key, float(value), float) 
-					except ValueError:
-						DBInterface().setSetting(key, value)
-
-			response.append('Set "%s" as "%s"' % (args[3], args[4]))
-		else:
-			response.append('add help')
+		response.append('add help')
 	
 	return '\n'.join(response)
 
