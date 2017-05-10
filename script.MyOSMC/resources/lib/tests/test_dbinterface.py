@@ -29,7 +29,8 @@ class DBInterfaceTest(unittest.TestCase):
 
 	
 	def setUp(self):
-		self.dbpath = 'test.db'
+		
+		self.dbpath = os.path.join(os.path.dirname(os.path.abspath(__file__)),'test_data','test.db')
 		try:
 			os.remove(self.dbpath)
 		except IOError:   # pragma: no cover
