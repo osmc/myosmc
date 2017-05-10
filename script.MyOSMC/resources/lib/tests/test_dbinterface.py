@@ -3,7 +3,7 @@ import unittest
 import env
 from sqlite3 import OperationalError
 
-from database.dbinterface import DBInterface, database_connection, CLI
+from database.dbinterface import DBInterface, database_connection, CLI, get_setting
 from test_data.test_entries import test_items, test_items_replacements
 
 
@@ -185,8 +185,10 @@ class DBInterfaceTest(unittest.TestCase):
 			self.assertEqual(CLI(['dbinterface.py', 'a'], provided_db=self.dbpath), str(value))
 			self.assertEqual(len(CLI(['dbinterface.py', '-a'], provided_db=self.dbpath)), 168)
 
-			# too many arguments
-			self.assertEqual(CLI(['dbinterface.py', 'a', 'b', 'c'], provided_db=self.dbpath), 'add help')
+		# too many arguments
+		self.assertEqual(CLI(['dbinterface.py', 'a', 'b', 'c'], provided_db=self.dbpath), 'add help')
+
+		os.remove(self.dbpath)
 
 	
 	def test_bad_default_dict(self):
@@ -199,3 +201,21 @@ class DBInterfaceTest(unittest.TestCase):
 		defaults = {1:'a'}
 		with fresh_database(self.dbpath, defaults) as db:
 			self.assertEqual(len(db.errors), 1)
+
+
+	def test_get_settingfunction(self):
+			
+		self.assertEqual(get_setting('junk_key', provided_db=self.dbpath), "KeyError: Key not found in database")
+
+		with fresh_database(self.dbpath) as db:
+			db.setSetting('a','1234')
+			self.assertEqual(get_setting('a', provided_db=self.dbpath), '1234')
+
+
+	def test_CLI_osmcgetperfs_noargs(self):
+
+		with fresh_database(self.dbpath, {'a':'1234'}) as db:
+			self.assertEqual(len(CLI(['osmc_getperfs'], provided_db=self.dbpath)), 168)
+
+			self.assertEqual(CLI(['dbinterface.py', 'a'], provided_db=self.dbpath), '1234')
+
