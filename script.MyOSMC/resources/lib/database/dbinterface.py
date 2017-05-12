@@ -25,8 +25,8 @@
 from __future__ import print_function
 
 import sqlite3
-import sys
-from time import sleep
+import os
+import time
 
 
 DATABASE_PATH = "/home/osmc/.myosmc/preferences.db"
@@ -71,31 +71,30 @@ class DBInterface(object):
         sqlite3.OperationalError: when the database is locked and unable to execute an action within 2.5 seconds.
     '''
 
-    def __init__(self, dbpath=None, defaults=None):
+    def __init__(self, preload=None):
         ''' The __init__ method checks for the existence of the database file. If
         the database is not found, a new file is created. The new database is pre-loaded with
         the default values of certain vital OSMC settings.
 
         Arguments:
-            path (str): path to the database file.
-            defaults (dict): a dictionary containing the default values for a number of settings.
+            preload (dict): a dictionary containing the default values for a number of settings.
 
         Raises:
-            AttributeError: when the defaults argument is not a valid dictionary.
+            AttributeError: when the preload argument is not a valid dictionary.
         '''
-
         self.errors = []
 
-        self.dbpath = DATABASE_PATH if dbpath is None else dbpath
+        # test modules set the env variable DBPATH, which is used if it is present
+        self.dbpath = os.environ['DBPATH'] if 'DBPATH' in os.environ else DATABASE_PATH
 
         if not self._check_schema():
             self._create_schema()
 
-        self.defaults = defaults
+        self.preload = preload
 
-        if defaults is not None:
+        if preload is not None:
             try:
-                for key, value in defaults.iteritems():
+                for key, value in preload.iteritems():
                     try:
                         self.setsetting(key, value)
                     except Exception as e:
@@ -103,7 +102,7 @@ class DBInterface(object):
                         continue
 
             except AttributeError:
-                raise AttributeError('defaults not a dictionary')
+                raise AttributeError('preload not a dictionary')
 
     def getsetting(self, key):
         ''' Retrieves the data associated with the key in the OSMC database.
@@ -134,7 +133,7 @@ class DBInterface(object):
             key (str): must be alphanumeric. Keys are stored in lowercase only, but get converted to lowercase
                         on lookup.
             value (bool|int|float|string): the value to be stored in the database.
-            datatype (type, optional): The type of data that is being stored. Defaults to None. This is not
+            datatype (type, optional): The type of data that is being stored. preload to None. This is not
                         strictly required, but would operate as a 'type hint' and make the code easier to read.
 
         Raises:
@@ -247,7 +246,7 @@ class DBInterface(object):
 
             except sqlite3.OperationalError:
                 max_time += 1
-                sleep(0.1)
+                time.sleep(0.1)
 
         else:
             raise sqlite3.OperationalError
