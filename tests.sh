@@ -1,6 +1,6 @@
 #!/bin/bash
 
-pushd script.MyOSMC/resources/lib
+# pushd script.MyOSMC/resources/lib
 
 # Run pylint
 pylint $(pwd)

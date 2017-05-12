@@ -2,8 +2,8 @@ import unittest
 
 import env
 
-from common.logger import Logger
-from common.string_manipulation import sanitize_string
+from lib.common.logger import Logger
+from lib.common.string_manipulation import sanitize_string
 
 
 def mock_ss(string):

@@ -5,7 +5,7 @@ import unittest
 
 from sqlite3 import OperationalError
 
-from database.dbinterface import DBInterface, cl_interface, get_setting
+from lib.database.dbinterface import DBInterface
 
 from test_data.test_entries import test_items, test_items_replacements
 
@@ -158,22 +158,6 @@ class DBInterfaceTest(unittest.TestCase):
             for k, v in test_items.iteritems():
                 self.assertEqual(db.getsetting(k), v, msg='Value added as default, different to original (%s)' % k)
 
-    def test_cl_interface(self):
-
-        for value in ['True', '1234', '1.01', 'None']:
-            self.assertEqual(cl_interface(['dbinterface.py']), 'add help')
-
-            self.assertEqual(cl_interface(['dbinterface.py'], provided_db=self.dbpath), 'add help')
-            self.assertEqual(cl_interface(['dbinterface.py', 'a', str(value)], provided_db=self.dbpath), 'Set "a" as "%s"' % value)
-
-            self.assertEqual(cl_interface(['dbinterface.py', 'a'], provided_db=self.dbpath), str(value))
-            self.assertEqual(len(cl_interface(['dbinterface.py', '-a'], provided_db=self.dbpath)), 168)
-
-        # too many arguments
-        self.assertEqual(cl_interface(['dbinterface.py', 'a', 'b', 'c'], provided_db=self.dbpath), 'add help')
-
-        os.remove(self.dbpath)
-
     def test_bad_default_dict(self):
         with self.assertRaises(AttributeError):
             with FreshDatabase(self.dbpath, []):
@@ -183,18 +167,3 @@ class DBInterfaceTest(unittest.TestCase):
         defaults = {1: 'a'}
         with FreshDatabase(self.dbpath, defaults) as db:
             self.assertEqual(len(db.errors), 1)
-
-    def test_get_settingfunction(self):
-
-        self.assertEqual(get_setting('junk_key', provided_db=self.dbpath), "KeyError: Key not found in database")
-
-        with FreshDatabase(self.dbpath) as db:
-            db.setsetting('a', '1234')
-            self.assertEqual(get_setting('a', provided_db=self.dbpath), '1234')
-
-    def test_cl_interface_osmcgetperfs_noargs(self):
-
-        with FreshDatabase(self.dbpath, {'a': '1234'}):
-            self.assertEqual(len(cl_interface(['osmc_getperfs'], provided_db=self.dbpath)), 168)
-
-            self.assertEqual(cl_interface(['osmc_getperfs', 'a'], provided_db=self.dbpath), '1234')
