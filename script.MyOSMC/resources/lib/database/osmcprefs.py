@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os
 import sys
 
 from dbinterface import DBInterface
@@ -32,23 +31,20 @@ def _get_setting(key, db):
 def osmcprefs(whodat, key=None, value=None, *args):
 
     db = DBInterface()
-    response = None
     whodat = whodat.lower()
 
     if whodat.endswith('osmc_getprefs'):
 
         if key is None:
-            response = _get_all_settings(db=db)
-            response = '\n'.join(response)
+            return '\n'.join(_get_all_settings(db=db))
 
         else:
-            r = _get_setting(key, db=db)
-            response = str(r)
+            return str(_get_setting(key, db=db))
 
     elif whodat.endswith('osmc_setprefs'):
 
         if key is None or value is None:
-            response = 'Error, no params provided\Example: osmc_setprefs key value'
+            return 'Error, no params provided\Example: osmc_setprefs key value'
 
         else:
             if value.lower() in ['true', 'false']:
@@ -60,11 +56,12 @@ def osmcprefs(whodat, key=None, value=None, *args):
                     try:
                         db.setsetting(key, float(value), float)
                     except ValueError:
-                        db.setsetting(key, value)
+                        try:
+                            db.setsetting(key, value)
+                        except:   # pragma: no cover
+                            return 'Failed to set value'
 
-            response = 'Set "%s" to "%s"' % (key, value)
-
-    return response
+            return 'Set "%s" to "%s"' % (key, value)
 
 
 if __name__ == '__main__':   # pragma: no cover
