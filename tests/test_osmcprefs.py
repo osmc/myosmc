@@ -27,9 +27,7 @@ class OsmcprefsTest(unittest.TestCase):
             pass
 
     def tearDown(self):
-
-        # del os.environ['DBPATH']
-
+        del os.environ['DBPATH']
         try:
             os.remove(self.dbpath)   # pragma: no cover
         except:
@@ -45,25 +43,36 @@ class OsmcprefsTest(unittest.TestCase):
         with FreshDatabase(preload={'a':'1234'}) as db:
             self.assertEqual(_get_setting('a', db=db), '1234')
 
-    def test_osmcprefs_osmcgetperfs_noargs(self):
+    def test_osmcprefs_getprefs_noargs(self):
 
         with FreshDatabase(preload={'a': '1234'}):
-            self.assertEqual(len(osmcprefs(['osmc_getperfs'])), 168)
+            self.assertEqual(len(osmcprefs(*['osmc_getprefs'])), 168)
 
-            self.assertEqual(osmcprefs(['osmc_getperfs', 'a']), '1234')
+            self.assertEqual(osmcprefs(*['osmc_getprefs', 'a']), '1234')
 
-    def test_osmcprefs(self):
+    def test_osmcprefs_getprefs_toomany_args(self):
+        # the function should just ignore the extra arguments
+        with FreshDatabase(preload={'mykey': 'myvalue'}) as db:
+            self.assertEqual(osmcprefs(*['osmc_getprefs', 'mykey', 'extra']), 'myvalue')
 
+    def test_osmcprefs_setprefs_insuf_args(self):
+        error = 'Error, no params provided\Example: osmc_setprefs key value'
+        with FreshDatabase() as db:
+            self.assertEqual(osmcprefs(*['osmc_setprefs']), error)
+            self.assertEqual(osmcprefs(*['osmc_setprefs', 'key']), error)
+
+    def test_osmcprefs_setprefs_success(self):
+        with FreshDatabase() as db:
+            self.assertEqual(osmcprefs(*['osmc_setprefs', 'mykey', 'myvalue']), 'Set "mykey" to "myvalue"')
+            self.assertEqual(db.getsetting('mykey'), 'myvalue')
+
+    def test_osmcprefs_setprefs_toomany_args(self):
+        # the function should just ignore the extra arguments
+        with FreshDatabase() as db:
+            self.assertEqual(osmcprefs(*['osmc_setprefs', 'mykey', 'myvalue', 'extra']), 'Set "mykey" to "myvalue"')
+
+    def test_osmcprefs_setget_all_types(self):
         for value in ['True', '1234', '1.01', 'None']:
-            self.assertEqual(osmcprefs(['dbinterface.py']), 'add help')
-
-            self.assertEqual(osmcprefs(['dbinterface.py']), 'add help')
-
-            self.assertEqual(osmcprefs(['dbinterface.py', 'a', str(value)]), 'Set "a" as "%s"' % value)
-
-            self.assertEqual(osmcprefs(['dbinterface.py', 'a']), str(value))
-
-            self.assertEqual(len(osmcprefs(['dbinterface.py', '-a'])), 168)
-
-        # too many arguments
-        self.assertEqual(osmcprefs(['dbinterface.py', 'a', 'b', 'c']), 'add help')
+            with FreshDatabase() as db:
+                self.assertEqual(osmcprefs(*['osmc_setprefs', 'a', str(value)]), 'Set "a" to "%s"' % value)
+                self.assertEqual(osmcprefs(*['osmc_getprefs', 'a']), str(value))

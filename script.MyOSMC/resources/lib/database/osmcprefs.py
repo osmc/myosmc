@@ -29,50 +29,44 @@ def _get_setting(key, db):
         return "KeyError: Key not found in database"
 
 
-def osmcprefs(args):
+def osmcprefs(whodat, key=None, value=None, *args):
 
     db = DBInterface()
+    response = None
+    whodat = whodat.lower()
 
-    response = []
+    if whodat.endswith('osmc_getprefs'):
 
-    if len(args) <= 1:
-
-        if args[0].lower().endswith('osmc_getperfs'):
+        if key is None:
             response = _get_all_settings(db=db)
-        else:
-            response.append('add help')
-
-    elif len(args) == 2:
-        if args[1] == '-a':
-            response = _get_all_settings(db=db)
+            response = '\n'.join(response)
 
         else:
-            # process a GET request using the default db location
-            r = _get_setting(args[1], db=db)
-            response.append(str(r))
+            r = _get_setting(key, db=db)
+            response = str(r)
 
-    elif len(args) == 3:  # No magic needed for osmc_setprefs, as it will still have 3 args
-        # process a SET request with the default db location
-        key = args[1]
-        value = args[2]
-        if value.lower() in ['true', 'false']:
-            db.setsetting(key, bool(value), bool)
+    elif whodat.endswith('osmc_setprefs'):
+
+        if key is None or value is None:
+            response = 'Error, no params provided\Example: osmc_setprefs key value'
+
         else:
-            try:
-                db.setsetting(key, int(value), int)
-            except ValueError:
+            if value.lower() in ['true', 'false']:
+                db.setsetting(key, bool(value), bool)
+            else:
                 try:
-                    db.setsetting(key, float(value), float)
+                    db.setsetting(key, int(value), int)
                 except ValueError:
-                    db.setsetting(key, value)
-        response.append('Set "%s" as "%s"' % (args[1], args[2]))
+                    try:
+                        db.setsetting(key, float(value), float)
+                    except ValueError:
+                        db.setsetting(key, value)
 
-    else:
-        response.append('add help')
+            response = 'Set "%s" to "%s"' % (key, value)
 
-    return '\n'.join(response)
+    return response
 
 
 if __name__ == '__main__':   # pragma: no cover
 
-    print(osmcprefs(sys.argv))
+    print(osmcprefs(*sys.argv))
