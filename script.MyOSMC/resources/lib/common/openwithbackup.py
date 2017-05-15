@@ -4,7 +4,7 @@ import subprocess
 import time
 
 from datetime import datetime
-from glob import glob
+import glob
 
 
 class OpenWithBackup(object):
@@ -13,7 +13,10 @@ class OpenWithBackup(object):
 
         self.golden_file = golden_file
 
-        self.golden_path = os.path.dirname(self.golden_file)
+        self.golden_path, self.golden_fn = os.path.split(self.golden_file)
+
+        if self.golden_path == '' or self.golden_fn == '':
+            raise TypeError
 
         self.backup_path = '/home/osmc/.myosmc/backup_files'
         self._touchbackupfolder()
@@ -21,13 +24,14 @@ class OpenWithBackup(object):
         self.max_backups = 50
         self.tmp_content = None
         self.file_object = None
+        self.new_fn = None
 
         self.args = args
         self.kwargs = kwargs
 
     def __enter__(self):
 
-        with open(self.tmp_content, 'r') as f:
+        with open(self.golden_file, 'r') as f:
             self.tmp_content = f.readlines()
 
         self.file_object = open(self.golden_file, *self.args, **self.kwargs)
@@ -37,7 +41,6 @@ class OpenWithBackup(object):
     def __exit__(self, *args):
 
         self.file_object.close()
-
         self._create_backup()
 
     def _touchbackupfolder(self):
@@ -52,16 +55,16 @@ class OpenWithBackup(object):
 
         self._drop_extras(backups)
 
-        last_backup = self.get_latest_backup()
+        last_backup = self.get_latest_backup(backups)
 
         # create the new backup filename
-        new_fn = os.path.join(self.backup_path, self.golden_file + '_backup' + self._get_now(last_backup))
+        self.new_fn = os.path.join(self.backup_path, self.golden_fn + '_backup' + self._get_now(last_backup))
 
         # write the backup file contents
         try:
-            with open(new_fn, 'w') as f:
+            with open(self.new_fn, 'w') as f:
                 f.writelines(self.tmp_content)
-        except IOError:
+        except IOError:  # pragma: no cover
             pass
 
     def _get_now(self, last_backup):
@@ -75,13 +78,15 @@ class OpenWithBackup(object):
         while tries < 10:
 
             try:
-                return datetime.now().strftime("%Y%m%d%H%M%S")
+                now = datetime.now()
+                return now.strftime("%Y%m%d%H%M%S")
             except:
                 tries += 1
                 time.sleep(0.05)
 
         try:
-            return datetime.now().strftime("%Y%m%d%H%M%S")
+            now = datetime.now()
+            return now.strftime("%Y%m%d%H%M%S")  # pragma: no cover
         except:
             if last_backup is None:
                 return '0'
@@ -95,11 +100,11 @@ class OpenWithBackup(object):
 
     def _collect_backups(self):
 
-        return glob(os.path.join(self.backup_path, self.golden_file) + '_backup*')
+        return glob.glob(os.path.join(self.backup_path, self.golden_fn) + '_backup*')
 
     def _collate_backups(self, backups):
 
-        backups = [fn for fn in backups if '_backup' in fn[-21:]]
+        backups = [fn for fn in backups if self.golden_fn + '_backup' in fn[-21 - len(self.golden_fn):]]
 
         backups.sort(key=lambda x: x[-14:])
 
@@ -112,11 +117,18 @@ class OpenWithBackup(object):
                 self._harddropbackup(fn)
 
     def _harddropbackup(self, fn):
-
-        subprocess.call(['sudo', 'rm', fn])
+        try:
+            os.remove(fn)
+        except:
+            subprocess.call(['sudo', 'rm', fn])
 
     def get_latest_backup(self, backups):
         try:
             return backups[-1]
         except IndexError:
             return None
+
+
+if __name__ == '__main__':  # pragma: no cover
+
+    owb = OpenWithBackup('test/goldern')
