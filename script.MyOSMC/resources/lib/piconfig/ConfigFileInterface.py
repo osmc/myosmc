@@ -1,6 +1,8 @@
-import re
+import env
+
 from MasterSettings import MASTER_SETTINGS
 from piSettings import PassThrough, CLASS_LIBRARY
+from common import OpenWithBackup
 
 
 class ConfigFileInterface(object):
@@ -8,7 +10,6 @@ class ConfigFileInterface(object):
     def __init__(self, location='/boot/config.txt'):
 
         self.location = location
-        self.OpenWithBackup = OpenWithBackup
 
     def _clean_this_line(self, original_line):
 
@@ -172,12 +173,8 @@ class ConfigFileInterface(object):
         # reverse the lines back to the original order
         new_lines = new_lines[::-1]
 
-        if self.OpenWithBackup:
-            with self.OpenWithBackup(self.location, 'w') as f:
-                f.writelines(new_lines)
-        else:
-            with open(self.location, 'w') as f:
-                f.writelines(new_lines)
+        with OpenWithBackup(self.location, 'w') as f:
+            f.writelines(new_lines)
 
     def update_settings(self, final_doc, new_settings):
 

@@ -1,3 +1,3 @@
-from ConfigFileInterface import ConfigFileInterface
-from MASTER_SETTINGS import MASTER_SETTINGS
-from piSettings import CLASS_LIBRARY
+from configfileinterface import ConfigFileInterface
+from mastersettings import MASTER_SETTINGS
+from pisettings import CLASS_LIBRARY
