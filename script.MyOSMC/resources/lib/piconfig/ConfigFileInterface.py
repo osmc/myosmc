@@ -2,10 +2,10 @@ import env
 
 from MasterSettings import MASTER_SETTINGS
 from piSettings import PassThrough, CLASS_LIBRARY
-from common import OpenWithBackup
+from common import OpenWithBackup, Logger
 
 
-class ConfigFileInterface(object):
+class ConfigFileInterface(Logger):
 
     def __init__(self, location='/boot/config.txt'):
 
@@ -13,7 +13,10 @@ class ConfigFileInterface(object):
 
     def _clean_this_line(self, original_line):
 
-        clean_line = original_line
+        if original_line is None:
+            return ''
+
+        clean_line = str(original_line)
 
         clean_line = clean_line.strip()
 
@@ -71,7 +74,7 @@ class ConfigFileInterface(object):
         '''
 
         for config_line in clean_doc:
-            print '#' + config_line['clean']
+            self.log('#' + config_line['clean'])
 
             # check the config_line against all the settings, exiting loop on first valid find
             for setting in _settings:
@@ -81,7 +84,7 @@ class ConfigFileInterface(object):
 
                     symbol = '==' if str(setting.default_value) == str(setting.current_config_value) else '!='
 
-                    print 'Assigning -- %s %s %s \n' % (setting.default_value, symbol, setting.current_config_value)
+                    self.log('Assigning -- %s %s %s \n' % (setting.default_value, symbol, setting.current_config_value))
 
                     break  # go to the next config_line
                 except ValueError:
@@ -89,7 +92,7 @@ class ConfigFileInterface(object):
 
             else:  # if no break
                 # passthrough the original line to the final document
-                print 'passing through\n'
+                self.log('passing through\n')
                 config_line['setting'] = PassThrough(name='passthrough')
 
         return clean_doc
@@ -189,23 +192,18 @@ class ConfigFileInterface(object):
 
 if __name__ == "__main__":
 
-    import sys
-    from pprint import pprint
-
-    sys.stdout = open('C:\\t\\logfile', 'w')
-
     c = ConfigFileInterface('samples\\config_05.txt')
 
-    doc = c.read_config_txt()
+    # doc = c.read_config_txt()
 
-    res = c.extract_settings_from_doc(doc)
+    # res = c.extract_settings_from_doc(doc)
 
-    print '\n\n'
+    # self.log('\n\n')
 
-    pprint(res)
-    print '\n\n'
+    # pprint(res)
+    # self.log('\n\n')
 
-    for x in doc:
-        print x['clean']
-        pprint(x['setting'].__dict__)
-        print '\n'
+    # for x in doc:
+    #     self.log(x['clean'])
+    #     pprint(x['setting'].__dict__)
+    #     self.log('\n')
