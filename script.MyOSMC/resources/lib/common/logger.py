@@ -5,9 +5,9 @@ import xbmc
 
 class Logger(object):
 
-    def __init__(self, whodisis):
+    def __init__(self):
 
-        self.whodisis = whodisis
+        self.whodisis = self.__class__.__name__
 
     def log(self, raw_message, level=xbmc.LOGDEBUG):
 

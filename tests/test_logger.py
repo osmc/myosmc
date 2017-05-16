@@ -12,13 +12,11 @@ def mock_ss(string):
 class LoggerTest(unittest.TestCase):
 
     def test_whodis(self):
-        name = 'disme'
-        l = Logger(name)
-        self.assertEqual(l.whodisis, name)
+        l = Logger()
+        self.assertEqual(l.whodisis, 'Logger')
 
     def test_log_goodstring(self):
-        name = 'disme'
-        l = Logger(name)
+        l = Logger()
         goodstring = 'goodstring'
         try:
             l.log(goodstring)
@@ -26,8 +24,7 @@ class LoggerTest(unittest.TestCase):
             self.fail("logger.log() threw an exception to a good string")
 
     def test_log_badstring(self):
-        name = 'disme'
-        l = Logger(name)
+        l = Logger()
         badstring = u'\xa1'
         try:
             l.log(badstring)
