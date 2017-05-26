@@ -1,8 +1,7 @@
 import env
 
-from MasterSettings import MASTER_SETTINGS
-from piSettings import PassThrough, CLASS_LIBRARY
 from common import OpenWithBackup, Logger
+from pisettings import PassThrough
 
 
 class ConfigFileInterface(Logger):
@@ -51,10 +50,10 @@ class ConfigFileInterface(Logger):
 
         return clean_doc
 
-    def _append_unmatched_settings_to_doc(self, clean_doc, _settings):
+    def _append_unmatched_setting_classes_to_doc(self, clean_doc, _setting_classes):
         # run through the settings again and add any that have not been assigned
         #  to the document with their default values
-        for setting in _settings:
+        for setting in _setting_classes:
 
             if setting.foundinDoc:
                 continue
@@ -65,7 +64,7 @@ class ConfigFileInterface(Logger):
 
         return clean_doc
 
-    def _assign_settings_to_doc(self, clean_doc, _settings):
+    def _assign_setting_classes_to_doc(self, clean_doc, _setting_classes):
         '''
         Goes through the clean doc, assigns a piSetting to each line.
         Settings that are not added to a line are added to the end of the document
@@ -77,7 +76,7 @@ class ConfigFileInterface(Logger):
             self.log('#' + config_line['clean'])
 
             # check the config_line against all the settings, exiting loop on first valid find
-            for setting in _settings:
+            for setting in _setting_classes:
                 try:
                     setting = setting.extract_setting_from_line(config_line)
                     config_line['setting'] = setting
@@ -97,33 +96,9 @@ class ConfigFileInterface(Logger):
 
         return clean_doc
 
-    def extract_settings_from_doc(self, final_doc):
+    def extract_setting_classes_from_doc(self, final_doc):
 
         return {config_line['setting'].name: config_line['setting'].current_config_value for config_line in final_doc}
-
-    def _generate_list_of_settings(self):
-        '''
-            Builds the library of Settings instances. These are used against each line in the
-            config.txt, with the first match being assigned as the Setting for that line.
-        '''
-        _settings = []
-
-        for key, attributes in MASTER_SETTINGS.iteritems():
-
-            typ = attributes['type']
-            piclass = CLASS_LIBRARY[typ]
-            setting = piclass(name=key)
-
-            setting.set_stub(attributes['stub'])
-            setting.set_default_value(attributes['default'])
-            setting.set_valid_values(attributes['valid'])
-
-            for x in attributes['patterns']:
-                setting.add_pattern(x['id_pattern'], x['ext_pattern'])
-
-            _settings.append(setting)
-
-        return _settings
 
     def read_config_txt(self):
         '''
@@ -137,17 +112,17 @@ class ConfigFileInterface(Logger):
         The final doc contains what will eventually be written to the new config.txt
         '''
 
-        # first step is to use the Master_Settings information to create a list of piSetting instances
-        _settings = self._generate_list_of_settings()
+        # first step is to use the Master_Setting_classes information to create a list of piSetting instances
+        _setting_classes = SettingClassFactory()
 
         with open(self.location, 'r') as f:
             dirty_doc = f.readlines()
 
         clean_doc = self._clean_this_doc(dirty_doc)
 
-        clean_doc = self._assign_settings_to_doc(clean_doc, _settings)
+        clean_doc = self._assign_setting_classes_to_doc(clean_doc, _setting_classes)
 
-        final_doc = self._append_unmatched_settings_to_doc(clean_doc, _settings)
+        final_doc = self._append_unmatched_setting_classes_to_doc(clean_doc, _setting_classes)
 
         return final_doc
 
@@ -179,13 +154,13 @@ class ConfigFileInterface(Logger):
         with OpenWithBackup(self.location, 'w') as f:
             f.writelines(new_lines)
 
-    def update_settings(self, final_doc, new_settings):
+    def update_setting_classes(self, final_doc, new_setting_classes):
 
         for config_line in final_doc:
 
             setting = config_line['setting']
 
-            setting.set_new_value(new_settings[setting.name])
+            setting.set_new_value(new_setting_classes[setting.name])
 
         return final_doc
 
@@ -196,7 +171,7 @@ if __name__ == "__main__":
 
     # doc = c.read_config_txt()
 
-    # res = c.extract_settings_from_doc(doc)
+    # res = c.extract_setting_classes_from_doc(doc)
 
     # self.log('\n\n')
 

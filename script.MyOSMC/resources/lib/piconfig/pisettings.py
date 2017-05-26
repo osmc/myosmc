@@ -1,12 +1,13 @@
 import re
 
+from mastersettings import MASTER_SETTING_PATTERNS
 
 class piSetting(object):
 
 	def __init__(self, name):
 
 		self.name = name
-		
+
 		# the stub is how the settings will be written to the config.txt
 		self.stub = ''
 
@@ -53,7 +54,7 @@ class piSetting(object):
 		self.default_value = value
 
 	def set_current_value_to_default(self):
-		self.current_config_value = self.default_value 
+		self.current_config_value = self.default_value
 
 	def set_valid_values(self, valid_values=None):
 		if valid_values is None:
@@ -112,7 +113,7 @@ class piSetting(object):
 			matched = re.search(pattern_pair[0], clean_line)
 
 			if matched:
-				if self.foundinDoc: 
+				if self.foundinDoc:
 					print 'Assigning as duplicate'
 					return Duplicate(duplicated_line=config_line['original'])
 
@@ -131,13 +132,13 @@ class piSetting(object):
 
 
 class Duplicate(piSetting):
-	''' Class that is assigned to lines in the config.txt that are determined to 
+	''' Class that is assigned to lines in the config.txt that are determined to
 		be duplicates. These will be retained, but commented out in the new
 		config.txt
 	'''
 
 	def __init__(self, duplicated_line):
-		
+
 		super(Duplicate, self).__init__(name='dupe')
 
 		self.stub, self.new_value = '#%s', duplicated_line
@@ -199,7 +200,7 @@ class Boolean(piSetting):
 
 
 class Boolean_specialValue(Boolean):
-	''' Class to handle settings that show up as booleans in Kodi, 
+	''' Class to handle settings that show up as booleans in Kodi,
 		but have specific flags in the config.txt, rather than just 0 or 1.
 	 '''
 
@@ -247,12 +248,12 @@ class RangeValue(piSetting):
 
 
 class RangeValue_VariableDefault(RangeValue):
-	''' Class for Pi Overclock settings where the defaults are dependent upon the 
+	''' Class for Pi Overclock settings where the defaults are dependent upon the
 		version of PI
-	'''		
+	'''
 
 	def set_default_value(self, value):
-		# the value provided in this case will be a dictionary of 
+		# the value provided in this case will be a dictionary of
 		# versions and defaults
 
 		try:
@@ -287,7 +288,7 @@ class Selection(piSetting):
 		in the config.txt. These are matched to a validation list of tuples or the form
 		(config.txt string, kodi-value)
 		Validation takes the form of checking if the string can be found in the tuple[0] in its
-		entirety. The value returned will be the first item in the validation list with the 
+		entirety. The value returned will be the first item in the validation list with the
 		kodi value in tuple[1]
 	'''
 
@@ -328,8 +329,6 @@ def PiVersion():
 		return 'Pi2'
 
 
-
-
 CLASS_LIBRARY = {
 				'duplicate' : Duplicate,
 				'passthru'  : PassThrough,
@@ -342,4 +341,28 @@ CLASS_LIBRARY = {
 				'alwaysdrop': AlwaysDrop
 				}
 
+
+def SettingClassFactory():
+    '''
+        Builds the library of Settings instances. These are used against each line in the
+        config.txt, with the first match being assigned as the Setting for that line.
+    '''
+    _setting_classes = []
+
+    for key, attributes in MASTER_SETTING_PATTERNS.iteritems():
+
+        typ = attributes['type']
+        piclass = CLASS_LIBRARY[typ]
+        setting = piclass(name=key)
+
+        setting.set_stub(attributes['stub'])
+        setting.set_default_value(attributes['default'])
+        setting.set_valid_values(attributes['valid'])
+
+        for pattern in attributes['patterns']:
+            setting.add_pattern(pattern['id_pattern'], pattern['ext_pattern'])
+
+        _setting_classes.append(setting)
+
+    return _setting_classes
 

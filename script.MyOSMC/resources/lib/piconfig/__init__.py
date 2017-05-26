@@ -1,3 +1,3 @@
 from configfileinterface import ConfigFileInterface
-from mastersettings import MASTER_SETTINGS
+from mastersettings import MASTER_SETTING_PATTERNS
 from pisettings import CLASS_LIBRARY

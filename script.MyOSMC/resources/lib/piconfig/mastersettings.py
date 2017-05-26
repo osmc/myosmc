@@ -1,5 +1,5 @@
 
-MASTER_SETTINGS =    {
+MASTER_SETTING_PATTERNS =    {
 
 		"start_x": {
 			"type" 		: "bool",
@@ -12,7 +12,7 @@ MASTER_SETTINGS =    {
 							],
 		},
 
-		"gpu_mem_1024": { 
+		"gpu_mem_1024": {
 			"type" 		: "range",
 			"default"   : "256",
 			"sprssDef"  : True,
@@ -21,11 +21,11 @@ MASTER_SETTINGS =    {
 			"patterns": [{  "id_pattern"      : r"\s*gpu_mem_1024\s*=",
 							"ext_pattern"     : r"\s*gpu_mem_1024\s*=\s*(\d+)"},
 						{	"id_pattern"      : r"\s*gpu_mem\s*=",
-							"ext_pattern"     : r"\s*gpu_mem\s*=\s*(\d+)"},				
+							"ext_pattern"     : r"\s*gpu_mem\s*=\s*(\d+)"},
 							],
 		},
 
-		"gpu_mem_512": { 
+		"gpu_mem_512": {
 			"type" 		: "range",
 			"default"   : "144",
 			"sprssDef"  : True,
@@ -34,11 +34,11 @@ MASTER_SETTINGS =    {
 			"patterns": [{	"id_pattern"      : r"\s*gpu_mem_512\s*=",
 							"ext_pattern"     : r"\s*gpu_mem_512\s*=\s*(\d+)"},
 						{	"id_pattern"      : r"\s*gpu_mem\s*=",
-							"ext_pattern"     : r"\s*gpu_mem\s*=\s*(\d+)"},				
+							"ext_pattern"     : r"\s*gpu_mem\s*=\s*(\d+)"},
 							],
 		},
 
-		"gpu_mem_256": { 
+		"gpu_mem_256": {
 			"type" 		: "range",
 			"default"   : "112",
 			"sprssDef"  : True,
@@ -47,11 +47,11 @@ MASTER_SETTINGS =    {
 			"patterns": [{	"id_pattern"      : r"\s*gpu_mem_256\s*=",
 							"ext_pattern"     : r"\s*gpu_mem_256\s*=\s*(\d+)"	},
 						{   "id_pattern"      : r"\s*gpu_mem\s*=",
-							"ext_pattern"     : r"\s*gpu_mem\s*=\s*(\d+)"},				
+							"ext_pattern"     : r"\s*gpu_mem\s*=\s*(\d+)"},
 							],
 		},
 
-		"config_hdmi_boost": { 
+		"config_hdmi_boost": {
 			"type" 		: "range",
 			"default"   : "",
 			"sprssDef"  : True,
@@ -61,8 +61,8 @@ MASTER_SETTINGS =    {
 							"ext_pattern"     : r"\s*(?:hdmi_boost|config_hdmi_boost)\s*=\s*(\d*)",}
 							],
 		},
-	
-		"decode_MPG2": { 
+
+		"decode_MPG2": {
 			"type" 		: "string",
 			"default"   : "",
 			"sprssDef"  : True,
@@ -73,7 +73,7 @@ MASTER_SETTINGS =    {
 							],
 		},
 
-		"decode_WVC1": { 
+		"decode_WVC1": {
 			"type" 		: "string",
 			"default"   : "",
 			"sprssDef"  : True,
@@ -84,12 +84,12 @@ MASTER_SETTINGS =    {
 							],
 		},
 
-		"display_rotate": { 
+		"display_rotate": {
 			"type" 		: "selection",
 			"default"   : "0",
 			"sprssDef"  : True,
 			"stub"      : "display_rotate=%s",
-			"valid"		: [	
+			"valid"		: [
 							('1', 		1),
 							('2', 		2),
 							('3', 		3),
@@ -101,7 +101,7 @@ MASTER_SETTINGS =    {
 							],
 		},
 
-		"hdmi_force_hotplug": { 
+		"hdmi_force_hotplug": {
 			"type" 		: "bool",
 			"default"   : "false",
 			"sprssDef"  : True,
@@ -112,7 +112,7 @@ MASTER_SETTINGS =    {
 							],
 		},
 
-		"hdmi_edid_file": { 
+		"hdmi_edid_file": {
 			"type" 		: "bool",
 			"default"   : "false",
 			"sprssDef"  : True,
@@ -123,7 +123,7 @@ MASTER_SETTINGS =    {
 							],
 		},
 
-		"hdmi_group": { 
+		"hdmi_group": {
 			"type" 		: "range",
 			"default"   : "0",
 			"sprssDef"  : True,
@@ -134,7 +134,7 @@ MASTER_SETTINGS =    {
 							],
 		},
 
-		"hdmi_ignore_cec": { 
+		"hdmi_ignore_cec": {
 			"type" 		: "bool",
 			"default"   : "false",
 			"sprssDef"  : True,
@@ -145,7 +145,7 @@ MASTER_SETTINGS =    {
 							],
 		},
 
-		"hdmi_ignore_cec_init": { 
+		"hdmi_ignore_cec_init": {
 			"type" 		: "bool",
 			"default"   : "false",
 			"sprssDef"  : True,
@@ -156,7 +156,7 @@ MASTER_SETTINGS =    {
 							],
 		},
 
-		"hdmi_ignore_edid": { 
+		"hdmi_ignore_edid": {
 			"type" 		: "boolspec",
 			"default"   : "false",
 			"sprssDef"  : True,
@@ -167,7 +167,7 @@ MASTER_SETTINGS =    {
 							],
 		},
 
-		"hdmi_mode": { 
+		"hdmi_mode": {
 			"type" 		: "range",
 			"default"   : "0",
 			"sprssDef"  : True,
@@ -178,7 +178,7 @@ MASTER_SETTINGS =    {
 							],
 		},
 
-		"hdmi_pixel_encoding": { 
+		"hdmi_pixel_encoding": {
 			"type" 		: "range",
 			"default"   : "0",
 			"sprssDef"  : True,
@@ -189,7 +189,7 @@ MASTER_SETTINGS =    {
 							],
 		},
 
-		"sdtv_aspect": { 
+		"sdtv_aspect": {
 			"type" 		: "range",
 			"default"   : "1",
 			"sprssDef"  : True,
@@ -200,7 +200,7 @@ MASTER_SETTINGS =    {
 							],
 		},
 
-		"sdtv_mode": { 
+		"sdtv_mode": {
 			"type" 		: "range",
 			"default"   : "0",
 			"sprssDef"  : True,
@@ -222,7 +222,7 @@ MASTER_SETTINGS =    {
 							],
 		},
 
-		"hdmi_safe": { 
+		"hdmi_safe": {
 			"type" 		: 'bool',
 			"default"   : "false",
 			"sprssDef"  : True,
@@ -233,7 +233,7 @@ MASTER_SETTINGS =    {
 							],
 		},
 
-		"audio":{ 
+		"audio":{
 			"type" 		: "alwaysdrop",
 			"default"   : 0,
 			"sprssDef"  : True,
@@ -244,12 +244,12 @@ MASTER_SETTINGS =    {
 								],
 		},
 
-		"w1gpio": { 
+		"w1gpio": {
 			"type" 		: "selection",
 			"default"   : "0",
 			"sprssDef"  : True,
 			"stub"      : "dtoverlay=%s",
-			"valid"		: [	
+			"valid"		: [
 							# config value				KODI value
 							('w1-gpio-overlay'			, 1),
 							('w1-gpio-pullup-overlay'	, 2)
@@ -265,7 +265,7 @@ MASTER_SETTINGS =    {
 			"sprssDef"  : True,
 			"stub"      : "dtoverlay=%s",
 			"valid"		: [
-							# string to write back to the config.txt					
+							# string to write back to the config.txt
 							('hifiberry-dac-overlay\ndtparam=audio=off' 				, 1 ),
 							('hifiberry-dacplus-overlay\ndtparam=audio=off' 			, 2 ),
 							('hifiberry-digi-overlay\ndtparam=audio=off' 				, 3 ),
@@ -293,13 +293,13 @@ MASTER_SETTINGS =    {
 							],
 		},
 
-		"lirc-rpi-overlay": { 
+		"lirc-rpi-overlay": {
 			"type" 		: "boolspec",
 			"default"   : 0,
 			"sprssDef"  : True,
 			"stub"      : "dtoverlay=%s",
-			"valid"		: [	
-							"lirc-rpi-overlay", 
+			"valid"		: [
+							"lirc-rpi-overlay",
 							"lirc-rpi"
 							],
 			"patterns": [{	"id_pattern"      : r"\s*(?:dtoverlay|device_tree_overlay)\s*=\s*[-\w\d]*lirc-rpi[-\w\d]*",
@@ -307,7 +307,7 @@ MASTER_SETTINGS =    {
 							],
 		},
 
-		"gpio_in_pin": { 
+		"gpio_in_pin": {
 			"type" 		: "range",
 			"default"   : "18",
 			"sprssDef"  : True,
@@ -318,7 +318,7 @@ MASTER_SETTINGS =    {
 							],
 		},
 
-		"gpio_in_pull": { 
+		"gpio_in_pull": {
 			"type" 		: "boolspec",
 			"default"   : "off",
 			"sprssDef"  : True,
@@ -332,7 +332,7 @@ MASTER_SETTINGS =    {
 							],
 		},
 
-		"gpio_out_pin": { 
+		"gpio_out_pin": {
 			"type" 		: "range",
 			"default"   : "17",
 			"sprssDef"  : True,
@@ -343,7 +343,7 @@ MASTER_SETTINGS =    {
 							],
 		},
 
-		"arm_freq": { 
+		"arm_freq": {
 			"type" 		: "range_var",
 			"default"   : {"PiB": 700, "Pi2": 900},
 			"sprssDef"  : True,
@@ -354,7 +354,7 @@ MASTER_SETTINGS =    {
 							],
 		},
 
-		"sdram_freq": { 
+		"sdram_freq": {
 			"type" 		: "range_var",
 			"default"   : {"PiB": 400, "Pi2": 450},
 			"sprssDef"  : True,
@@ -365,7 +365,7 @@ MASTER_SETTINGS =    {
 							],
 		},
 
-		"core_freq": { 
+		"core_freq": {
 			"type" 		: "range_var",
 			"default"   : {"PiB": 250, "Pi2": 450},
 			"sprssDef"  : True,
@@ -374,9 +374,9 @@ MASTER_SETTINGS =    {
 			"patterns": [{	"id_pattern"      : r"\s*core_freq\s*=\s*",
 							"ext_pattern"     : r"\s*core_freq\s*=\s*(\d+)",}
 							],
-		},		
+		},
 
-		"initial_turbo": { 
+		"initial_turbo": {
 			"type" 		: "range",
 			"default"   : "0",
 			"sprssDef"  : True,
@@ -385,9 +385,9 @@ MASTER_SETTINGS =    {
 			"patterns": [{	"id_pattern"      : r"\s*initial_turbo\s*=\s*",
 							"ext_pattern"     : r"\s*initial_turbo\s*=\s*(\d+)",}
 							],
-		},		
+		},
 
-		"over_voltage": { 
+		"over_voltage": {
 			"type" 		: "range",
 			"default"   : "0",
 			"sprssDef"  : True,
@@ -396,9 +396,9 @@ MASTER_SETTINGS =    {
 			"patterns": [{	"id_pattern"      : r"\s*over_voltage\s*=\s*",
 							"ext_pattern"     : r"\s*over_voltage\s*=\s*(\d+)",}
 							],
-		},		
+		},
 
-		"over_voltage_sdram": { 
+		"over_voltage_sdram": {
 			"type" 		: "range",
 			"default"   : "0",
 			"sprssDef"  : True,
@@ -407,9 +407,9 @@ MASTER_SETTINGS =    {
 			"patterns": [{	"id_pattern"      : r"\s*over_voltage_sdram\s*=\s*",
 							"ext_pattern"     : r"\s*over_voltage_sdram\s*=\s*(\d+)",}
 							],
-		},		
+		},
 
-		"force_turbo": { 
+		"force_turbo": {
 			"type" 		: "bool",
 			"default"   : "0",
 			"sprssDef"  : True,
@@ -418,7 +418,7 @@ MASTER_SETTINGS =    {
 			"patterns": [{	"id_pattern"      : r"\s*force_turbo\s*=\s*",
 							"ext_pattern"     : r"\s*force_turbo\s*=\s*(\d+)",}
 							],
-		},		
-	
+		},
+
 	}
 
