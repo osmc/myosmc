@@ -80,8 +80,6 @@ class ConfigFileInterfaceTest(unittest.TestCase):
         test_keys.sort()
         self.assertEqual(test_keys, target_keys)
 
-
-
     def test_range_items_inrange(self):
 
         test_count = 0
@@ -102,12 +100,39 @@ class ConfigFileInterfaceTest(unittest.TestCase):
 
                 clean_doc = self.cfi._assign_setting_classes_to_doc(clean_doc, _setting_classes)
                 try:
-                    self.assertEqual(clean_doc[0]['original'], fake_entry, msg='%s failed range test (original)' % k)
-                    self.assertEqual(clean_doc[0]['clean'], fake_entry, msg='%s failed range test (clean)' % k)
-                    self.assertIsInstance(clean_doc[0]['setting'], target_class, msg='%s failed range test %s (%s vs %s)' \
-                        % (i, k, type(clean_doc[0]['setting']), target_class))
+                    self.assertEqual(clean_doc[0]['original'], fake_entry, msg='%s failed inrange test (original)' % k)
+                    self.assertEqual(clean_doc[0]['clean'], fake_entry, msg='%s failed inrange test (clean)' % k)
+                    self.assertIsInstance(clean_doc[0]['setting'], target_class, msg='%s failed inrange test %s (%s vs %s)' \
+                        % (k, i, type(clean_doc[0]['setting']), target_class))
                 except KeyError:
-                    self.fail(msg='Failed Range test. Key not found for %s' % k)
+                    self.fail(msg='Failed inrange test. Key not found for %s' % k)
 
-        self.assertTrue(test_count > 0, msg='No Rrange tests were run.' )
+        self.assertTrue(test_count > 0, msg='No inrange tests were run.' )
 
+
+    def test_range_items_outrange(self):
+
+        test_count = 0
+        for k, v in MASTER_SETTING_PATTERNS.iteritems():
+
+            if v['type'] not in ['range', 'range_var']:
+                continue
+
+            target_class = CLASS_LIBRARY['passthru']
+            test_count += 1
+
+            invalid_value = max(xrange(v['valid'][0], v['valid'][1])) + 2
+            fake_entry = v['stub'] % invalid_value
+
+            _setting_classes = SettingClassFactory()
+            clean_doc = self.cfi._clean_this_doc([fake_entry])
+
+            clean_doc = self.cfi._assign_setting_classes_to_doc(clean_doc, _setting_classes)
+
+            try:
+                self.assertIsInstance(clean_doc[0]['setting'], target_class, msg='%s failed outrange test %s (%s vs %s)' \
+                    % (k, invalid_value, type(clean_doc[0]['setting']), target_class))
+            except KeyError:
+                self.fail(msg='Failed outange test. Key not found for %s' % k)
+
+        self.assertTrue(test_count > 0, msg='No outrange tests were run.' )
