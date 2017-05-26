@@ -11,10 +11,6 @@ def mock_ss(string):
 
 class LoggerTest(unittest.TestCase):
 
-    def test_whodis(self):
-        l = Logger()
-        self.assertEqual(l.whodisis, 'Logger')
-
     def test_log_goodstring(self):
         l = Logger()
         goodstring = 'goodstring'
