@@ -1,7 +1,7 @@
 import env
 
 from common import OpenWithBackup, Logger
-from pisettings import PassThrough
+from pisettings import PassThrough, SettingClassFactory
 
 
 class ConfigFileInterface(Logger):
