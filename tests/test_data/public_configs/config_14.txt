@@ -1,0 +1,31 @@
+dtoverlay=pi3-disable-bt  
+
+#hdmi_ignore_cec_init=1  
+
+disable_overscan=1
+start_x=1  
+disable_splash=1
+
+# eingefuegt checken !!!!
+hdmi_ignore_edid_audio =	1
+
+
+# fuer hdmi war das ohne comment
+
+#gpu_mem_256=112
+gpu_mem_256=128  
+gpu_mem_512=218  
+#gpu_mem_1024=218  
+gpu_mem_1024=256  
+
+
+sdtv_aspect=3  
+sdtv_mode=2  
+
+
+
+#https://raspberry.tips/faq/raspberry-pi-device-tree-aenderung-mit-kernel-3-18-x-geraete-wieder-aktivieren/
+#enable_uart=1
+
+
+

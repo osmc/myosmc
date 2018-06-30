@@ -1,0 +1,11 @@
+#gpu_mem_1024=256
+disable_overscan=1
+start_x=1  
+disable_splash=1
+#gpu_mem_256=256
+#gpu_mem_512=256  
+gpu_mem_256=112  
+gpu_mem_1024=256  
+gpu_mem_512=144  
+sdtv_aspect=1  
+

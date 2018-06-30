@@ -1,0 +1,10 @@
+gpu_mem_1024=256  
+hdmi_ignore_cec_init=1  
+disable_overscan=1
+start_x=1  
+disable_splash=1
+sdtv_aspect=1  
+decode_MPG2=0x2d18d363  
+gpu_mem_256=112  
+gpu_mem_512=144  
+
