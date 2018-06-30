@@ -35,11 +35,18 @@ class piSetting(object):
 	def __repr__(self):
 
 		if self.isChanged():
-			return '{name} - default: {dflt} - current: {curr} - changed to: {newv}'.format(
-				name=self.name, dflt=self.default_value, curr=self.current_config_value, newv=self.new_value)
+			return '{name} \n\t\t\t- default: {dflt}\n\t\t\t- current: {curr} \n\t\t\t- kodi repr: {krep} \n\t\t\t- changed to: {newv}'.format(
+				name=self.name, 
+				dflt=self.default_value,
+				curr=self.current_config_value, 
+				krep=self._convert_to_kodi_setting(self.current_config_value),
+				newv=self.new_value)
 		else:
-			return '{name} - default: {dflt} - current: {curr} - no change'.format(
-				name=self.name, dflt=self.default_value, curr=self.current_config_value)
+			return '{name} \n\t\t\t- default: {dflt}\n\t\t\t- current: {curr} \n\t\t\t- kodi repr: {krep} \n\t\t\t- no change'.format(
+				name=self.name, 
+				dflt=self.default_value,
+				curr=self.current_config_value,
+				krep=self._convert_to_kodi_setting(self.current_config_value))
 
 	def isChanged(self):
 		return 	self.current_config_value == self.new_value
@@ -175,12 +182,18 @@ class Boolean(piSetting):
 
 	def _validate(self, value):
 
-		if int(value) not in self.valid_values:
+		# Convert the value to an integer, if possible
+		try:
+			value = int(value)
+		except ValueError:
+			pass
+
+		if value not in self.valid_values:
 			raise ValueError
 		else:
 			return value
 
-	def convert_to_kodi_setting(self, value):
+	def _convert_to_kodi_setting(self, value):
 
 		try:
 			if int(value) == 1:
@@ -202,13 +215,13 @@ class Boolean(piSetting):
 class Boolean_specialValue(Boolean):
 	''' Class to handle settings that show up as booleans in Kodi,
 		but have specific flags in the config.txt, rather than just 0 or 1.
+		The flags should all be strings.
 	 '''
 
-
-	def convert_to_kodi_setting(self, value):
+	def _convert_to_kodi_setting(self, value):
 
 		try:
-			if int(value) in self.valid_values:
+			if value in self.valid_values:
 				return 'true'
 			else:
 				raise
@@ -241,7 +254,7 @@ class RangeValue(piSetting):
 		return value
 
 
-	def convert_to_kodi_setting(self, value):
+	def _convert_to_kodi_setting(self, value):
 		'''All Kodi values are strings'''
 
 		return str(value)
@@ -277,7 +290,7 @@ class RawString(piSetting):
 		return value
 
 
-	def convert_to_kodi_setting(self, value):
+	def _convert_to_kodi_setting(self, value):
 		'''All Kodi values are strings'''
 
 		return str(value)
