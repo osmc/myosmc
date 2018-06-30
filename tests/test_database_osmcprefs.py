@@ -6,7 +6,7 @@ from sqlite3 import OperationalError
 
 from lib.database.osmcprefs import osmcprefs, _get_setting
 from test_data.test_entries import test_items, test_items_replacements
-from test_dbinterface import FreshDatabase
+from test_database_dbinterface import FreshDatabase
 
 
 class OsmcprefsTest(unittest.TestCase):
