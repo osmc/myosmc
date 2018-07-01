@@ -22,12 +22,13 @@ class ConfigFileInterface(Logger):
         if not clean_line:
             return ''
 
-        # ignore commented out lines
-        if clean_line.startswith('#'):
-            return ''
+        # # ignore commented out lines
+        # if clean_line.startswith('#'):
+        #     return ''
+        # THESE SHOULD JUST BE PASSED THROUGH AS IS
 
         # strip the line of any inline comments
-        if '#' in clean_line:
+        if '#' in clean_line.strip()[1:]:
             clean_line = clean_line[:clean_line.index('#')]
 
             # restrip the line
