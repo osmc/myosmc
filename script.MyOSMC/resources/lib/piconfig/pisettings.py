@@ -25,6 +25,16 @@ class piSetting(object):
         self.current_config_value = 'NULLSETTING'
         self.new_value = None
 
+        # is_original indicates that the line is not one that's been touched by 
+        # MyOSMC. All lines that are altered or added by the addon will be
+        # appended with "#MyOSMC", with the original line added before it, commented
+        # out, and with "#original" appended to the end.
+        self.is_original = False
+
+        # If the user adds '#lock' to the end of any config line, the values of that 
+        # line will not be changed. The original line is returned in its place.
+        self.is_locked = False
+
         self.valid_values = []
 
         # this list collects the identification and extraction patterns
@@ -35,24 +45,34 @@ class piSetting(object):
     def __repr__(self):
 
         if self.isChanged():
-            return '{name} \n\t\t\t- default: {dflt}\n\t\t\t- current: {curr} \n\t\t\t- kodi repr: {krep} \n\t\t\t- changed to: {newv}'.format(
+            return '{name} \n\t\t\t- default: {dflt}\n\t\t\t- current: {curr} \n\t\t\t- kodi repr: {krep} \n\t\t\t- is_locked: {lock} \n\t\t\t- is_original: {orig} \n\t\t\t- changed to: {newv}'.format(
                 name=self.name, 
                 dflt=self.default_value,
                 curr=self.current_config_value, 
                 krep=self._convert_to_kodi_setting(self.current_config_value),
+                orig=self.is_original,
+                lock=self.is_locked,
                 newv=self.new_value)
         else:
-            return '{name} \n\t\t\t- default: {dflt}\n\t\t\t- current: {curr} \n\t\t\t- kodi repr: {krep} \n\t\t\t- no change'.format(
+            return '{name} \n\t\t\t- default: {dflt}\n\t\t\t- current: {curr} \n\t\t\t- kodi repr: {krep} \n\t\t\t- is_original: {orig} \n\t\t\t- is_locked: {lock} \n\t\t\t- no change'.format(
                 name=self.name, 
                 dflt=self.default_value,
                 curr=self.current_config_value,
-                krep=self._convert_to_kodi_setting(self.current_config_value))
+                krep=self._convert_to_kodi_setting(self.current_config_value),
+                orig=self.is_original,
+                lock=self.is_locked,)
 
     def isChanged(self):
         return  self.current_config_value == self.new_value
 
     def isDefault(self):
         return self.default_value == self.new_value
+
+    def isOriginal(self, line):
+        return '#MyOSMC' not in line
+
+    def isLocked(self, line):
+        return '#lock' in line
 
     def set_stub(self, value):
         self.stub = value
@@ -79,8 +99,21 @@ class piSetting(object):
     def set_new_value(self, value):
         self.new_value = self.convert_to_piconfig_setting(value)
 
+    def _construct_stub(self):
+
+        if self.is_original:
+            constructed_stub = '#%s #original\n%s #MyOSMC' % (self.original, self.stub)
+        else:
+            constructed_stub = '%s #MyOSMC' % self.stub
+
+        return constructed_stub
+
     def final_line(self):
-        return self.stub % self.new_value
+
+        if not self.is_locked:
+            return self._construct_stub() % self.new_value
+
+        return self.original
 
     def _validate(self, *args, **kwargs):
         ''' Invalid values should raise a ValueError '''
@@ -130,6 +163,15 @@ class piSetting(object):
                     # then break out of all the loops
                     self.foundinDoc = True
                     self.current_config_value = value
+
+                    # Confirm that the line is original.
+                    if self.isOriginal(config_line['original']):
+                        self.is_original = True
+                    
+                    # Confirm that the line is locked (which blocks any changes)
+                    if self.isLocked(config_line['original']):
+                        self.is_locked = True
+
                     break
 
         if value is None:
