@@ -2,9 +2,11 @@ import env
 import os
 import unittest
 
-from lib.piconfig.configfileinterface import ConfigFileInterface
-from lib.piconfig.pisettings import CLASS_LIBRARY, SettingClassFactory
+from lib.piconfig.configfileinterface import ConfigFileInterface, SettingClassFactory
+import lib.piconfig.config_classes as  config_classes
 from lib.piconfig.mastersettings import MASTER_SETTING_PATTERNS
+
+CLASS_LIBRARY = config_classes.CLASS_LIBRARY
 
 from mock import patch, mock_open
 

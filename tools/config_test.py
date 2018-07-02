@@ -23,10 +23,6 @@ with open(samples + 'config_14a.txt', 'r') as f:
 cfi = ConfigFileInterface(location=samples + 'config_14a.txt' )
 res, settings = cfi.read_config_txt()
 
-pprint(settings)
-
-sys.exit()
-
 fin = [x for x in res if all([x['clean'].strip(), x['clean'] != 'NULL'])]
 
 fin_orig = [x['original'] for x in fin]
