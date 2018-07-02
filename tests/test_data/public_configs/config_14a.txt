@@ -1,0 +1,18 @@
+dtoverlay=pi3-disable-bt  
+
+gpu_mem_256=128 #MyOSMC #lock
+gpu_mem_512=218  
+#gpu_mem_1024=218  
+gpu_mem_1024=256  #lock
+
+
+sdtv_aspect=3  
+sdtv_mode=2  
+
+
+
+#https://raspberry.tips/faq/raspberry-pi-device-tree-aenderung-mit-kernel-3-18-x-geraete-wieder-aktivieren/
+#enable_uart=1
+
+
+

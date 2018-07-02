@@ -449,3 +449,7 @@ MASTER_SETTING_PATTERNS =    {
 
     }
 
+if __name__ == '__main__':
+    for k, v in MASTER_SETTING_PATTERNS.items():
+        print k
+        print v['valid']

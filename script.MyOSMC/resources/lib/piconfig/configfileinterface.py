@@ -1,10 +1,72 @@
 import env
 
 from common import OpenWithBackup, Logger
-from pisettings import PassThrough, SettingClassFactory
+from mastersettings import MASTER_SETTING_PATTERNS
+import config_classes
+
+CLASS_LIBRARY = config_classes.CLASS_LIBRARY
+
+def SettingClassFactory():
+    '''
+        Builds the library of Settings instances. These are used against each line in the
+        config.txt, with the first match being assigned as the Setting for that line.
+    '''
+    _setting_classes = []
+
+    for key, attributes in MASTER_SETTING_PATTERNS.iteritems():
+
+        typ = attributes['type']
+        piclass = CLASS_LIBRARY[typ]
+        setting = piclass(name=key)
+
+        setting.set_stub(attributes['stub'])
+        setting.set_default_value(attributes['default'])
+        setting.set_valid_values(attributes['valid'])
+        setting.set_suppress_ifDefault(attributes['sprssDef'])
+
+        for pattern in attributes['patterns']:
+            setting.add_pattern(pattern['id_pattern'], pattern['ext_pattern'])
+
+        _setting_classes.append(setting)
+
+    return _setting_classes
 
 
 class ConfigFileInterface(Logger):
+    ''' This class is used to interface with the config.txt file.
+
+        The Read method is called when the settings are opened and needs to be populated with the
+        current config. The settings are sent as a dictionary of setting names (keys) and the values
+        extracted from the line (or default values).
+
+        When the Read method is called it reads the config.txt found at the provided location 
+        and produces a list of config_lines.
+        config_lines are dicts containing:
+        - the original line from the config.txt
+        - a cleaned up version of that line
+        - the order the line is found in the config
+        - a piSetting instance that has the retrieved validated value
+
+        The final doc contains all the lines of the config file, assigned to a piSetting instance
+        as well as entried for all the settings we track that is NOT found in the config file. This
+        is required so that all fields can be populated in the kodi settings.
+
+        From the final doc we extract a dictionary of setting names and values. This is what is used to
+        populate the settings in kodi.
+
+        The instance can be killed after this.
+
+        The user changes their settings in kodi, and this class can recieve back a dictionary of 
+        setting names and values.
+
+        The config is Read again (it should not have changed in the meantime) to create a new final doc.
+        The dictionary is used to update the new_values of each line of the final doc.
+        Where the two values are not the same, the new line is updated when written to the file.
+        Where the values are the same, and found_in_doc is true, the original line is put back in place.
+
+        FOUND IN DOC
+
+    '''
 
     def __init__(self, location='/boot/config.txt'):
 
@@ -93,25 +155,15 @@ class ConfigFileInterface(Logger):
             else:  # if no break
                 # passthrough the original line to the final document
                 self.log('passing through\n')
-                config_line['setting'] = PassThrough(name='passthrough')
+                config_line['setting'] = CLASS_LIBRARY['passthru'](name='passthrough')
 
         return clean_doc
 
-    def extract_setting_classes_from_doc(self, final_doc):
+    def _extract_setting_classes_from_doc(self, final_doc):
 
         return {config_line['setting'].name: config_line['setting'].current_config_value for config_line in final_doc}
 
     def read_config_txt(self):
-        '''
-        Reads the config.txt found at the provided location and produces a list of config_lines.
-        config_lines are dicts containing:
-        - the original line from the config.txt
-        - a cleaned up version of that line
-        - the order the line is found in the config
-        - a piSetting instance that has the retrieved validated value
-
-        The final doc contains what will eventually be written to the new config.txt
-        '''
 
         # first step is to use the Master_Setting_classes information to create a list of piSetting instances
         _setting_classes = SettingClassFactory()
@@ -125,25 +177,35 @@ class ConfigFileInterface(Logger):
 
         final_doc = self._append_unmatched_setting_classes_to_doc(clean_doc, _setting_classes)
 
-        return final_doc
+        settings = self._extract_setting_classes_from_doc(final_doc)
 
-    def write_config_txt(self, final_doc):
+        return final_doc, settings
+
+    def write_config_txt(self, new_settings_dict):
         ''' Backs up the existing config.txt
         Runs through the final doc producing a list of lines to write back to a new config.txt
         '''
+
+        final_doc = self.read_config_txt()
+
+        final_doc = self._update_setting_classes(final_doc, new_settings_dict)
 
         new_lines = []
 
         for config_line in final_doc:
             setting = config_line['setting']
 
-            # settings that are the default values, and where defaults are suppressed should be ignored
+            # settings that are the default values, and where defaults are set to be suppressed 
+            # and that were not found in the originl config.txt should be ignored
             # (i.e. dont write them to the new config.txt)
-            if setting.isDefault and setting.suppress_defaults:
+            if setting.isDefault and setting.suppress_defaults and not setting.foundinDoc:
                 continue
 
-            # settings that are not changed should just have the original line replicated in the new config.txt
-            if not setting.isChanged:
+            # Settings that are not changed but that were found in the original document
+            # should just have the original line replicated in the new config.txt
+            # Settings that are unchanged but NOT found in the document, are to be left out.
+            # They will be
+            if not setting.isChanged and setting.foundinDoc:
                 new_lines.append(config_line['original'])
 
             # lines for which the values have changed should have the final_line brought in from the piSetting
@@ -155,13 +217,13 @@ class ConfigFileInterface(Logger):
         with OpenWithBackup(self.location, 'w') as f:
             f.writelines(new_lines)
 
-    def update_setting_classes(self, final_doc, new_setting_classes):
+    def _update_setting_classes(self, final_doc, new_settings_dict):
 
         for config_line in final_doc:
 
             setting = config_line['setting']
 
-            setting.set_new_value(new_setting_classes[setting.name])
+            setting.set_new_value(new_settings_dict[setting.name])
 
         return final_doc
 
@@ -170,13 +232,9 @@ if __name__ == "__main__":
 
     c = ConfigFileInterface('samples\\config_05.txt')
 
-    # doc = c.read_config_txt()
+    final_doc, settings = c.read_config_txt()
 
-    # res = c.extract_setting_classes_from_doc(doc)
-
-    # self.log('\n\n')
-
-    # pprint(res)
+    pprint(res)
     # self.log('\n\n')
 
     # for x in doc:

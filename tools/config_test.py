@@ -17,11 +17,15 @@ sys.modules['xbmccvfs'] = Mock()
 
 from resources.lib.piconfig.configfileinterface import ConfigFileInterface
 
-with open(samples + 'config_14.txt', 'r') as f:
+with open(samples + 'config_14a.txt', 'r') as f:
   orig_lines = f.readlines()
 
-cfi = ConfigFileInterface(location=samples + 'config_14.txt' )
-res = cfi.read_config_txt()
+cfi = ConfigFileInterface(location=samples + 'config_14a.txt' )
+res, settings = cfi.read_config_txt()
+
+pprint(settings)
+
+sys.exit()
 
 fin = [x for x in res if all([x['clean'].strip(), x['clean'] != 'NULL'])]
 
