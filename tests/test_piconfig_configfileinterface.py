@@ -9,7 +9,7 @@ from lib.piconfig.mastersettings import MASTER_SETTING_PATTERNS
 from mock import patch, mock_open
 
 SAMPLES = {
-        '#': '',
+        '#': '#',
         None: '',
         'test  # commented out': 'test',
         'extraspaces  ': 'extraspaces',
