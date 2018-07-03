@@ -7,6 +7,6 @@ class AlwaysDrop(piSetting):
 
         return None
 
-    def convert_to_piconfig_setting(self, value):
+    def _convert_to_piconfig_setting(self, value):
 
         return self.default_value
