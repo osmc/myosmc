@@ -228,13 +228,13 @@ class ConfigFileInterface(Logger):
         return final_doc
 
 
-if __name__ == "__main__":
+# if __name__ == "__main__":
 
-    c = ConfigFileInterface('samples\\config_05.txt')
+    # c = ConfigFileInterface('samples\\config_05.txt')
 
-    final_doc, settings = c.read_config_txt()
+    # final_doc, settings = c.read_config_txt()
 
-    pprint(res)
+    # pprint(res)
     # self.log('\n\n')
 
     # for x in doc:
