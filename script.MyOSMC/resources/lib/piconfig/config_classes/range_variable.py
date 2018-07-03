@@ -31,3 +31,7 @@ class RangeValue_VariableDefault(RangeValue):
         if not version: version = "PiB"
 
         self.default_value = value[version]
+        
+    def _convert_to_piconfig_setting(self, value):
+
+        return value

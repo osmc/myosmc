@@ -17,7 +17,7 @@ class Selection(piSetting):
 
         raise ValueError
 
-    def convert_to_piconfig_setting(self, value):
+    def _convert_to_piconfig_setting(self, value):
 
         for x in self.valid_values:
             if int(value) == x[1]:

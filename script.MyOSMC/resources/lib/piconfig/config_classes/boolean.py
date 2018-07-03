@@ -29,7 +29,7 @@ class Boolean(piSetting):
             return 'NULLSETTING'
 
 
-    def convert_to_piconfig_setting(self, value):
+    def _convert_to_piconfig_setting(self, value):
 
         if value == 'true':
             return '1'

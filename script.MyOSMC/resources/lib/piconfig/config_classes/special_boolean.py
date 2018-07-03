@@ -17,7 +17,7 @@ class Boolean_specialValue(Boolean):
             return 'NULLSETTING'
 
 
-    def convert_to_piconfig_setting(self, value):
+    def _convert_to_piconfig_setting(self, value):
 
         if value == 'true':
             return self.valid_values[0]

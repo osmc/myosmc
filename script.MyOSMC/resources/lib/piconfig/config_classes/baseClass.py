@@ -98,23 +98,23 @@ class piSetting(object):
         self.current_config_value = value
 
     def set_new_value(self, value):
-        self.new_value = self.convert_to_piconfig_setting(value)
+        self.new_value = self._convert_to_piconfig_setting(value)
 
-    def _construct_stub(self):
+    def _construct_stub(self, original_line):
 
         if self.is_original:
-            constructed_stub = '#%s #original\n%s #MyOSMC' % (self.original, self.stub)
+            constructed_stub = '#%s #original\n%s #MyOSMC' % (original_line.strip(), self.stub)
         else:
             constructed_stub = '%s #MyOSMC' % self.stub
 
         return constructed_stub
 
-    def final_line(self):
+    def final_line(self, original_line):
 
         if not self.is_locked:
-            return self._construct_stub() % self.new_value
+            return self._construct_stub(original_line) % self.new_value
 
-        return self.original
+        return original_line
 
     def _validate(self, *args, **kwargs):
         ''' Invalid values should raise a ValueError '''

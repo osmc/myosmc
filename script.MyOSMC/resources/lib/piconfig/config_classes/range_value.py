@@ -21,3 +21,7 @@ class RangeValue(piSetting):
         '''All Kodi values are strings'''
 
         return str(value)
+        
+    def _convert_to_piconfig_setting(self, value):
+
+        return value
