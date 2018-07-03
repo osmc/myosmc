@@ -6,6 +6,8 @@ from lib.piconfig.configfileinterface import ConfigFileInterface, SettingClassFa
 import lib.piconfig.config_classes as  config_classes
 from lib.piconfig.mastersettings import MASTER_SETTING_PATTERNS
 
+from test_data import master_config_read as mcr
+
 CLASS_LIBRARY = config_classes.CLASS_LIBRARY
 
 from mock import patch, mock_open
@@ -52,9 +54,23 @@ class ConfigFileInterfaceTest(unittest.TestCase):
 
     def setUp(self):
 
-        this_file_loc = os.path.dirname(os.path.abspath(__file__))
-        self.location = os.path.join(this_file_loc, 'test_data', 'config.txt')
+        self.this_file_loc = os.path.dirname(os.path.abspath(__file__))
+        self.location = os.path.join(self.this_file_loc, 'test_data', 'config.txt')
         self.cfi = ConfigFileInterface(self.location)
+
+    def test_master_config(self):
+
+        master_config_location = os.path.join(self.this_file_loc, 'test_data', 'public_configs', 'master_config.txt')
+        target_results = mcr.MCR 
+
+        cfi = ConfigFileInterface(master_config_location)
+
+        _, settings = cfi.read_config_txt()
+
+        for k, v in settings.items():
+            self.assertEqual(v, target_results[k], 
+                msg='Returned setting value (%s) != target value (%s)' % (v, target_results[k]))
+
 
     def test_construction_default_location(self):
         test_cfi = ConfigFileInterface()
