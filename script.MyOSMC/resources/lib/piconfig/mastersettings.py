@@ -346,13 +346,14 @@ MASTER_SETTING_PATTERNS =    {
         },
 
         "gpio_in_pull": {
-            "type"      : "boolspec",
+            "type"      : "selection",
             "default"   : "off",
             "sprssDef"  : True,
             "stub"      : "dtparam=gpio_in_pull=%s",
             "valid"     : [
-                            ('down', 1),
-                            ('up', 2),
+                            ('off', 1),
+                            ('down', 2),
+                            ('up', 3),
                             ],
             "patterns": [{  "id_pattern"      : r"\s*(?:dtoverlay|device_tree_overlay|dtparam|dtparams|device_tree_param|device_tree_params)\s*=(?:lirc-rpi:)?.*gpio_in_pull[-\w\d]*=",
                             "ext_pattern"     : r"\s*(?:dtoverlay|device_tree_overlay|dtparam|dtparams|device_tree_param|device_tree_params)\s*=(?:lirc-rpi:)?.*gpio_in_pull[-\w\d]*=\s*(\w*)",}
@@ -451,5 +452,7 @@ MASTER_SETTING_PATTERNS =    {
 
 if __name__ == '__main__':
     for k, v in MASTER_SETTING_PATTERNS.items():
-        print k
-        print v['valid']
+        try:
+            print v['stub'] % v['valid'][0]
+        except:
+            print 'Error %s' % k
