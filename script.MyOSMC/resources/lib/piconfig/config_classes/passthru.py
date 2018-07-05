@@ -15,3 +15,11 @@ class PassThrough(piSetting):
         ''' Passthroughs always pass validation. '''
 
         return value
+
+    def _convert_to_piconfig_setting(self, value):
+
+        return value
+
+    def construct_final_line(self):
+
+        return self.original_line

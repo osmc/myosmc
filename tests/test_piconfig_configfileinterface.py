@@ -13,14 +13,14 @@ CLASS_LIBRARY = config_classes.CLASS_LIBRARY
 from mock import patch, mock_open
 
 SAMPLES = {
-        '#': '#',
-        None: '',
-        'test  # commented out': 'test',
-        'extraspaces  ': 'extraspaces',
-        '  extraspaces': 'extraspaces',
-        ' ' : '',
-        '   ': '',
-        'perfect:1231234': 'perfect:1231234',
+        '#': ('#', ''),
+        None: ('',''),
+        'test  # commented out': ('test','# commented out'),
+        'extraspaces  ': ('extraspaces', ''),
+        '  extraspaces': ('extraspaces', ''),
+        ' ' : ('',''),
+        '   ': ('', ''),
+        'perfect:1231234': ('perfect:1231234', ''),
         }
 
 RANGE_ITEMS = {
@@ -49,6 +49,22 @@ RANGE_ITEMS = {
             'initial_turbo': xrange(62),
         }
 
+class pseudoWriter():
+    ''' We cant test actually writing to the config file, so
+        this class mocks that function.
+    '''
+
+    def __init__(self, *args, **kwargs):
+        pass
+
+    def __enter__(self, *args, **kwargs):
+        return self
+
+    def __exit__(self, *args, **kwargs):
+        pass
+
+    def writelines(self, *args, **kwargs):
+        pass
 
 class ConfigFileInterfaceTest(unittest.TestCase):
 
@@ -57,20 +73,6 @@ class ConfigFileInterfaceTest(unittest.TestCase):
         self.this_file_loc = os.path.dirname(os.path.abspath(__file__))
         self.location = os.path.join(self.this_file_loc, 'test_data', 'config.txt')
         self.cfi = ConfigFileInterface(self.location)
-
-    def test_master_config(self):
-
-        master_config_location = os.path.join(self.this_file_loc, 'test_data', 'public_configs', 'master_config.txt')
-        target_results = mcr.MCR 
-
-        cfi = ConfigFileInterface(master_config_location)
-
-        _, settings = cfi.read_config_txt()
-
-        for k, v in settings.items():
-            self.assertEqual(v, target_results[k], 
-                msg='Returned setting value (%s) != target value (%s)' % (v, target_results[k]))
-
 
     def test_construction_default_location(self):
         test_cfi = ConfigFileInterface()
@@ -90,7 +92,12 @@ class ConfigFileInterfaceTest(unittest.TestCase):
         # test the values in test_doc, match those in SAMPLE
         for line_dict in test_doc:
             key = line_dict['original']
-            self.assertDictEqual(line_dict, {'original': key, 'clean': SAMPLES[key], 'setting':None})
+            self.assertDictEqual(line_dict, {
+                                            'original': key, 
+                                            'clean': SAMPLES[key][0], 
+                                            'inline': SAMPLES[key][1], 
+                                            'setting':None}
+                                            )
         # test the keys in SAMPLE are represented in test_doc
         target_keys = SAMPLES.keys()
         target_keys.sort()
@@ -127,16 +134,15 @@ class ConfigFileInterfaceTest(unittest.TestCase):
 
         self.assertTrue(test_count > 0, msg='No inrange tests were run.' )
 
-
     def test_range_items_outrange(self):
 
         test_count = 0
         for k, v in MASTER_SETTING_PATTERNS.iteritems():
 
-            if v['type'] not in ['range', 'range_var']:
+            if v['type'] not in ['range']:
                 continue
 
-            target_class = CLASS_LIBRARY['passthru']
+            target_class = CLASS_LIBRARY['range']
             test_count += 1
 
             invalid_value = max(xrange(v['valid'][0], v['valid'][1])) + 2
@@ -154,3 +160,25 @@ class ConfigFileInterfaceTest(unittest.TestCase):
                 self.fail(msg='Failed outange test. Key not found for %s' % k)
 
         self.assertTrue(test_count > 0, msg='No outrange tests were run.' )
+
+    def test_master_config_read(self):
+
+        master_config_location = os.path.join(self.this_file_loc, 'test_data', 'public_configs', 'master_config.txt')
+        target_results = mcr.MCR 
+
+        cfi = ConfigFileInterface(master_config_location)
+
+        _, settings = cfi.read_config_txt()
+
+        for k, v in settings.items():
+            self.assertEqual(str(v), str(target_results[k]), 
+                msg='Returned setting value (%s) != target value (%s) for %s' % (v, target_results[k], k))
+
+    def test_master_config_write(self):
+
+        master_config_location = os.path.join(self.this_file_loc, 'test_data', 'public_configs', 'master_config.txt')
+        settings_changes = mcr.MCR_changes
+
+        cfi = ConfigFileInterface(master_config_location, writer=pseudoWriter)
+
+        cfi.write_config_txt(settings_changes)

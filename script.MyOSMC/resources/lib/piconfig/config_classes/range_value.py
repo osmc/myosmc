@@ -11,7 +11,7 @@ class RangeValue(piSetting):
         # Value is likely to be integer, but float is safer.
         value = int(float(value))
 
-        if not (self.valid_values[0] <= value < self.valid_values[1]):
+        if any([(self.valid_values[0] > value), (value > self.valid_values[1])]):
             raise ValueError
 
         return value

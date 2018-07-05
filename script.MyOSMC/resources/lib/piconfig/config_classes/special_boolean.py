@@ -5,21 +5,26 @@ class Boolean_specialValue(Boolean):
         but have specific flags in the config.txt, rather than just 0 or 1.
         The flags should all be strings.
      '''
+    
+    def _validate(self, value):
+
+        for vv in self.valid_values:
+            if value == vv[0]:
+                return value
+
+        raise ValueError
 
     def _convert_to_kodi_setting(self, value):
 
-        try:
-            if value in self.valid_values:
+        for vv in self.valid_values:
+            if value == vv[0]:
                 return 'true'
-            else:
-                raise
-        except:
-            return 'NULLSETTING'
 
-
+        return 'false'
+            
     def _convert_to_piconfig_setting(self, value):
 
         if value == 'true':
-            return self.valid_values[0]
+            return self.valid_values[1][0]
         else:
             return 'NULLSETTING'

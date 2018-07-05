@@ -30,7 +30,7 @@ MASTER_SETTING_PATTERNS =    {
 
         "start_x": {
             "type"      : "bool",
-            "default"   : "1",
+            "default"   : 1,
             "sprssDef"  : False,
             "stub"      : "start_x=%s",
             "valid"     : [0,1],
@@ -117,6 +117,7 @@ MASTER_SETTING_PATTERNS =    {
             "sprssDef"  : True,
             "stub"      : "display_rotate=%s",
             "valid"     : [
+                            ('off',     0),
                             ('1',       1),
                             ('2',       2),
                             ('3',       3),
@@ -185,10 +186,13 @@ MASTER_SETTING_PATTERNS =    {
 
         "hdmi_ignore_edid": {
             "type"      : "boolspec",
-            "default"   : "false",
+            "default"   : "off",
             "sprssDef"  : True,
             "stub"      : "hdmi_ignore_edid=%s",
-            "valid"     : ['0xa5000080'],
+            "valid"     : [
+                            ('off', 'false'),
+                            ('0xa5000080', 'true')
+                            ],
             "patterns": [{  "id_pattern"      : r"\s*hdmi_ignore_edid\s*=",
                             "ext_pattern"     : r"\s*hdmi_ignore_edid\s*=\s*(\w+)",}
                             ],
@@ -240,10 +244,13 @@ MASTER_SETTING_PATTERNS =    {
 
         "spi-bcm2835-overlay": {
             "type"      : "boolspec",
-            "default"   : "false",
+            "default"   : "off",
             "sprssDef"  : True,
             "stub"      : "dtoverlay=%s",
-            "valid"     : ["spi-bcm2835-overlay"],
+            "valid"     : [
+                            ('off', 'false'),
+                            ("spi-bcm2835-overlay", 'true')
+                                ],
             "patterns": [{  "id_pattern"      : r"\s*(?:dtoverlay|device_tree_overlay)\s*=\s*[-\w\d]*spi-bcm2835[-\w\d]*",
                             "ext_pattern"     : r"\s*(?:dtoverlay|device_tree_overlay)\s*=\s*([-\w\d]*spi-bcm2835[-\w\d]*)",}
                             ],
@@ -273,11 +280,12 @@ MASTER_SETTING_PATTERNS =    {
 
         "w1gpio": {
             "type"      : "selection",
-            "default"   : "0",
+            "default"   : "off",
             "sprssDef"  : True,
             "stub"      : "dtoverlay=%s",
             "valid"     : [
                             # config value              KODI value
+                            ('off'                      , 0),
                             ('w1-gpio-overlay'          , 1),
                             ('w1-gpio-pullup-overlay'   , 2)
                             ],
@@ -288,10 +296,11 @@ MASTER_SETTING_PATTERNS =    {
 
         "soundcard_dac": {
             "type"      : 'selection',
-            "default"   : 0,
+            "default"   : 'off',
             "sprssDef"  : True,
             "stub"      : "dtoverlay=%s",
             "valid"     : [
+                            ('off'                                                      , 0),
                             # string to write back to the config.txt
                             ('hifiberry-dac-overlay\ndtparam=audio=off'                 , 1 ),
                             ('hifiberry-dacplus-overlay\ndtparam=audio=off'             , 2 ),
@@ -322,12 +331,13 @@ MASTER_SETTING_PATTERNS =    {
 
         "lirc-rpi-overlay": {
             "type"      : "boolspec",
-            "default"   : 0,
+            "default"   : 'off',
             "sprssDef"  : True,
             "stub"      : "dtoverlay=%s",
             "valid"     : [
-                            "lirc-rpi-overlay",
-                            "lirc-rpi"
+                            ('off', 'false'),
+                            ("lirc-rpi-overlay", 'true'),
+                            ("lirc-rpi", 1)
                             ],
             "patterns": [{  "id_pattern"      : r"\s*(?:dtoverlay|device_tree_overlay)\s*=\s*[-\w\d]*lirc-rpi[-\w\d]*",
                             "ext_pattern"     : r"\s*(?:dtoverlay|device_tree_overlay)\s*=\s*([-\w\d]*lirc-rpi[-\w\d]*)",}
@@ -351,9 +361,9 @@ MASTER_SETTING_PATTERNS =    {
             "sprssDef"  : True,
             "stub"      : "dtparam=gpio_in_pull=%s",
             "valid"     : [
-                            ('off', 1),
-                            ('down', 2),
-                            ('up', 3),
+                            ('off', 0),
+                            ('down', 1),
+                            ('up', 2),
                             ],
             "patterns": [{  "id_pattern"      : r"\s*(?:dtoverlay|device_tree_overlay|dtparam|dtparams|device_tree_param|device_tree_params)\s*=(?:lirc-rpi:)?.*gpio_in_pull[-\w\d]*=",
                             "ext_pattern"     : r"\s*(?:dtoverlay|device_tree_overlay|dtparam|dtparams|device_tree_param|device_tree_params)\s*=(?:lirc-rpi:)?.*gpio_in_pull[-\w\d]*=\s*(\w*)",}
@@ -439,7 +449,7 @@ MASTER_SETTING_PATTERNS =    {
 
         "force_turbo": {
             "type"      : "bool",
-            "default"   : "0",
+            "default"   : 0,
             "sprssDef"  : True,
             "stub"      : "force_turbo=%s",
             "valid"     : [0,1],

@@ -13,7 +13,7 @@ class Selection(piSetting):
 
         for x in self.valid_values:
             if x[0] == value:
-                return x[1]
+                return x[0]
 
         raise ValueError
 
@@ -24,7 +24,6 @@ class Selection(piSetting):
                 return x[0]
 
         return self.default_value
-
 
     def _convert_to_kodi_setting(self, value):
 

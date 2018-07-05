@@ -68,35 +68,34 @@ class ConfigFileInterface(Logger):
 
     '''
 
-    def __init__(self, location='/boot/config.txt'):
-
+    def __init__(self, location='/boot/config.txt', writer=OpenWithBackup):
+        self.writer = writer
         self.location = location
 
     def _clean_this_line(self, original_line):
 
         if original_line is None:
-            return ''
+            return '', ''
 
         clean_line = str(original_line)
 
         clean_line = clean_line.strip()
 
         if not clean_line:
-            return ''
+            return '', ''
 
-        # # ignore commented out lines
-        # if clean_line.startswith('#'):
-        #     return ''
-        # THESE SHOULD JUST BE PASSED THROUGH AS IS
+        inline = ''
 
         # strip the line of any inline comments
         if '#' in clean_line.strip()[1:]:
-            clean_line = clean_line[:clean_line.index('#')]
+            hash_index = clean_line.index('#')
+            clean_line, inline = clean_line[:hash_index], clean_line[hash_index:]
 
-            # restrip the line
-            clean_line = clean_line.strip()
+        # restrip the line
+        clean_line = clean_line.strip()
+        inline = inline.strip()
 
-        return clean_line
+        return clean_line, inline
 
     def _clean_this_doc(self, doc):
 
@@ -107,9 +106,13 @@ class ConfigFileInterface(Logger):
         clean_doc = []
         for original_line in doc:
 
-            clean = self._clean_this_line(original_line)
+            clean, inline = self._clean_this_line(original_line)
 
-            clean_doc.append({'original': original_line, 'clean': clean, 'setting': None})
+            clean_doc.append({
+                'original': original_line, 
+                'clean': clean, 
+                'inline': inline,
+                'setting': None})
 
         return clean_doc
 
@@ -140,6 +143,7 @@ class ConfigFileInterface(Logger):
 
             # check the config_line against all the settings, exiting loop on first valid find
             for setting in _setting_classes:
+
                 try:
                     setting = setting.extract_setting_from_line(config_line)
                     config_line['setting'] = setting
@@ -147,6 +151,10 @@ class ConfigFileInterface(Logger):
                     symbol = '==' if str(setting.default_value) == str(setting.current_config_value) else '!='
 
                     self.log('Assigning -- %s %s %s \n' % (setting.default_value, symbol, setting.current_config_value))
+                    
+                    # insert the original line and inline comments into the setting
+                    setting.set_inline_comment(config_line['inline'])
+                    setting.set_original_line(config_line['original'])
 
                     break  # go to the next config_line
                 except ValueError:
@@ -161,7 +169,19 @@ class ConfigFileInterface(Logger):
 
     def _extract_setting_classes_from_doc(self, final_doc):
 
-        return {config_line['setting'].name: config_line['setting'].current_config_value for config_line in final_doc}
+        settings = {}
+
+        for config_line in final_doc:
+            setting = config_line['setting']
+
+            name = setting.name
+
+            value = setting.current_config_value
+            value_in_kodiStyle = setting._convert_to_kodi_setting(value)
+
+            settings.update({name: value_in_kodiStyle})
+
+        return settings
 
     def read_config_txt(self):
 
@@ -186,35 +206,27 @@ class ConfigFileInterface(Logger):
         Runs through the final doc producing a list of lines to write back to a new config.txt
         '''
 
-        final_doc = self.read_config_txt()
+        final_doc, _ = self.read_config_txt()
 
         final_doc = self._update_setting_classes(final_doc, new_settings_dict)
 
         new_lines = []
 
         for config_line in final_doc:
-            setting = config_line['setting']
+            final_line = config_line['setting'].construct_final_line()
 
-            # settings that are the default values, and where defaults are set to be suppressed 
-            # and that were not found in the originl config.txt should be ignored
-            # (i.e. dont write them to the new config.txt)
-            if setting.isDefault and setting.suppress_defaults and not setting.foundinDoc:
-                continue
+            new_lines.append(final_line)
 
-            # Settings that are not changed but that were found in the original document
-            # should just have the original line replicated in the new config.txt
-            # Settings that are unchanged but NOT found in the document, are to be left out.
-            # They will be
-            if not setting.isChanged and setting.foundinDoc:
-                new_lines.append(config_line['original'])
+        # remove the None's from the new_line list
+        new_lines = [x for x in new_lines if x is not None]
 
-            # lines for which the values have changed should have the final_line brought in from the piSetting
-            new_lines.append(setting.final_line)
+        # Drop all lines that have NULLSETTING in them
+        new_lines = [x for x in new_lines if 'NULLSETTING' not in x]
 
         # reverse the lines back to the original order
         new_lines = new_lines[::-1]
 
-        with OpenWithBackup(self.location, 'w') as f:
+        with self.writer(self.location, 'w') as f:
             f.writelines(new_lines)
 
     def _update_setting_classes(self, final_doc, new_settings_dict):
@@ -223,7 +235,20 @@ class ConfigFileInterface(Logger):
 
             setting = config_line['setting']
 
-            setting.set_new_value(new_settings_dict[setting.name])
+            try:
+                new_value = new_settings_dict[setting.name]
+            except KeyError:
+                # If for some reason the setting name is not found in the new
+                # setting dict, then just set the new value as the existing config value
+                setting.new_value = setting.current_config_value
+                continue
+
+            setting.set_new_value(new_value)
+
+
+        for config_line in final_doc:
+
+            setting = config_line['setting']
 
         return final_doc
 

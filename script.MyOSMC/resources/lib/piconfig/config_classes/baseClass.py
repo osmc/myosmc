@@ -1,6 +1,8 @@
+from common import Logger
 import re
 
-class piSetting(object):
+
+class piSetting(Logger):
 
     def __init__(self, name):
 
@@ -23,11 +25,10 @@ class piSetting(object):
         self.current_config_value = 'NULLSETTING'
         self.new_value = None
 
-        # is_original indicates that the line is not one that's been touched by 
-        # MyOSMC. All lines that are altered or added by the addon will be
-        # appended with "#MyOSMC", with the original line added before it, commented
-        # out, and with "#original" appended to the end.
-        self.is_original = False
+        # saved_original_line indicates that the line contains an inline comment that
+        # begins with '#origional:' which indicates the the original line in the config
+        # has been replaced by MyOSMC with the original line saved in an inline comment.
+        self.saved_original_line = False
 
         # If the user adds '#lock' to the end of any config line, the values of that 
         # line will not be changed. The original line is returned in its place.
@@ -39,44 +40,58 @@ class piSetting(object):
         # these are used in a regex search on each line of the config.txt
         self.patterns = []
 
+        self.original_line = ''
+        self.inline_comment = ''
+
 
     def __repr__(self):
 
         if self.isChanged():
-            return '{name} \n\t\t\t- default: {dflt}\n\t\t\t- current: {curr} \n\t\t\t- kodi repr: {krep} \n\t\t\t- is_locked: {lock} \n\t\t\t- is_original: {orig} \n\t\t\t- changed to: {newv}'.format(
+            return '{name} \n\t\t\t- default: {dflt}\n\t\t\t- current: {curr} \n\t\t\t- kodi repr: {krep} \n\t\t\t- is_locked: {lock} \n\t\t\t- changed to: {newv}'.format(
                 name=self.name, 
                 dflt=self.default_value,
                 curr=self.current_config_value, 
                 krep=self._convert_to_kodi_setting(self.current_config_value),
-                orig=self.is_original,
                 lock=self.is_locked,
                 newv=self.new_value)
         else:
-            return '{name} \n\t\t\t- default: {dflt}\n\t\t\t- current: {curr} \n\t\t\t- kodi repr: {krep} \n\t\t\t- is_original: {orig} \n\t\t\t- is_locked: {lock} \n\t\t\t- no change'.format(
+            return '{name} \n\t\t\t- default: {dflt}\n\t\t\t- current: {curr} \n\t\t\t- kodi repr: {krep} \n\t\t\t- is_locked: {lock} \n\t\t\t- no change'.format(
                 name=self.name, 
                 dflt=self.default_value,
                 curr=self.current_config_value,
                 krep=self._convert_to_kodi_setting(self.current_config_value),
-                orig=self.is_original,
                 lock=self.is_locked,)
 
     def isChanged(self):
-        return  self.current_config_value == self.new_value
+
+        # self.log('%s: %s vs %s changed=%s' % (self.name, self.current_config_value, self.new_value, self.current_config_value != self.new_value))
+        return self.current_config_value != self.new_value
 
     def isDefault(self):
         return self.default_value == self.new_value
-
-    def isOriginal(self, line):
-        return '#MyOSMC' not in line
-
-    def isLocked(self, line):
-        return '#lock' in line
 
     def set_stub(self, value):
         self.stub = value
 
     def set_default_value(self, value):
         self.default_value = value
+
+    def set_original_line(self, value):
+        self.original_line = value
+
+    def set_inline_comment(self, value):
+        self.inline_comment = value
+
+        # If there is an inline comment, confirm whether it is an original line that has
+        # been saved/replaced by MyOSMC.
+        if self.inline_comment:
+            if '#original:' in self.inline_comment:
+                self.saved_original_line = True
+
+            # Confirms whether the line is locked (which blocks any settings changes)
+            # by MyOSMC.
+            if ('#lock' in self.inline_comment) or ('#locked' in self.inline_comment):
+                self.is_locked = True
 
     def set_current_value_to_default(self):
         self.current_config_value = self.default_value
@@ -98,30 +113,60 @@ class piSetting(object):
         self.current_config_value = value
 
     def set_new_value(self, value):
+        # self.log(self.name)
         self.new_value = self._convert_to_piconfig_setting(value)
 
-    def _construct_stub(self, original_line):
+    def _construct_stub(self):
 
-        if self.is_original:
-            constructed_stub = '#%s #original\n%s #MyOSMC' % (original_line.strip(), self.stub)
-        else:
-            constructed_stub = '%s #MyOSMC' % self.stub
+        # If there is an original saved line, then append that to the normal stub.
+        # We don't want to always be adding originals.
+        if self.saved_original_line:
+            self.log(self.inline_comment)
+            return '%s %s\n' % (self.stub, self.inline_comment.rstrip())
 
-        return constructed_stub
+        # If there isn't a saved original line, then we are free to take the full
+        # original line (which includes any inline comments) and save it as an
+        # inline comment prepended with '#original':. Next time, this line will be
+        # picked up as a saved_original_line
+        return '%s #original:%s \n' % (
+                                    self.stub, 
+                                    self.original_line.rstrip()
+                                    )
 
-    def final_line(self, original_line):
+    def construct_final_line(self):
 
-        if not self.is_locked:
-            return self._construct_stub(original_line) % self.new_value
+        # self.log(self.name)
 
-        return original_line
+        # If the setting is locked (i.e. the line has an inline comment starting #lock)
+        # then simply return the original line as it is, with no changes.
+        if self.is_locked:
+            # self.log('isLocked\n')
+            return self.original_line
+
+        # Settings that are the default values, and where defaults are set to be suppressed 
+        # and that were not found in the originl config.txt should be ignored
+        # (i.e. dont write them to the new config.txt)
+        if self.isDefault() and self.suppress_defaults and not self.foundinDoc:
+            # self.log('isDefault, not found in doc\n')
+            return 'NULLSETTING'
+
+        # Settings that are not changed but that were found in the original document
+        # should just have the original line replicated in the new config.txt.
+        # This will, hopefully, allow dtoverlays to remain in the format that the user prefers.
+        if not self.isChanged() and self.foundinDoc:
+            # self.log('notChanged, found in doc\n')
+            return self.original_line
+
+        # Otherwise we construct the stub, and insert the new_value into it.
+        # self.log('constructing line\n')
+        return self._construct_stub() % self.new_value
 
     def _validate(self, *args, **kwargs):
         ''' Invalid values should raise a ValueError '''
         raise NotImplementedError
 
     def _convert_to_kodi_setting(self, *args, **kwargs):
-        return NotImplementedError
+        return 'NULLSETTING'
 
     def _convert_to_piconfig_setting(self, *args, **kwargs):
         return NotImplementedError
@@ -134,9 +179,13 @@ class piSetting(object):
                 raw_value = raw_values.group(1)
                 value = self._validate(raw_value)
             except ValueError:
-                print 'Line failed validation: \n{line}\nfailed value:{raw_value}'.format(line=line, raw_value=raw_value)
+                self.log('Line failed validation: \n{line}\nfailed value:{raw_value}'.format(line=line, raw_value=raw_value))
+
+                # Use the default value instead
+                self.log('Using default value: %s' % self.default_value)
+                value = self.default_value
             except:
-                print 'Line validation error: \n{line}'.format(line=line)
+                self.log('Line validation error: \n{line}'.format(line=line))
         return value
 
     def extract_setting_from_line(self, config_line, value = None):
@@ -155,7 +204,7 @@ class piSetting(object):
 
             if matched:
                 if self.foundinDoc:
-                    print 'Assigning as duplicate: %s' % config_line['original']
+                    self.log('Assigning as duplicate: %s' % config_line['original'])
                     return Duplicate(duplicated_line=config_line['original'])
 
                 value = self._extract_setting_value_from_line(clean_line, pattern_pair[1])
@@ -165,20 +214,13 @@ class piSetting(object):
                     self.foundinDoc = True
                     self.current_config_value = value
 
-                    # Confirm that the line is original.
-                    if self.isOriginal(config_line['original']):
-                        self.is_original = True
-                    
-                    # Confirm that the line is locked (which blocks any changes)
-                    if self.isLocked(config_line['original']):
-                        self.is_locked = True
-
                     break
 
         if value is None:
             raise ValueError
 
         return self
+
 
 class Duplicate(piSetting):
     ''' Class that is assigned to lines in the config.txt that are determined to
@@ -202,3 +244,7 @@ class Duplicate(piSetting):
         ''' Duplicates always pass validation. '''
 
         return value
+
+    def construct_final_line(self):
+
+        return self.stub % self.original_line
