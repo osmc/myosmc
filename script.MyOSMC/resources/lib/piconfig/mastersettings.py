@@ -301,7 +301,7 @@ MASTER_SETTING_PATTERNS =    {
             "stub"      : "dtoverlay=%s",
             "valid"     : [
                             ("off"                                                      , 0),
-                            
+
                             # string to write back to the config.txt
                             ("hifiberry-dac-overlay\ndtparam=audio=off"                 , 1 ),
                             ("hifiberry-dacplus-overlay\ndtparam=audio=off"             , 2 ),
@@ -384,7 +384,7 @@ MASTER_SETTING_PATTERNS =    {
 
         "arm_freq": {
             "type"      : "range_var",
-            "default"   : {"PiB": 700, "Pi2": 900},
+            "default"   : "NULLSETTING",
             "sprssDef"  : True,
             "stub"      : "arm_freq=%s",
             "valid"     : [600, 1201],
@@ -395,7 +395,7 @@ MASTER_SETTING_PATTERNS =    {
 
         "sdram_freq": {
             "type"      : "range_var",
-            "default"   : {"PiB": 400, "Pi2": 450},
+            "default"   : "NULLSETTING",
             "sprssDef"  : True,
             "stub"      : "sdram_freq=%s",
             "valid"     : [300, 701],
@@ -406,7 +406,7 @@ MASTER_SETTING_PATTERNS =    {
 
         "core_freq": {
             "type"      : "range_var",
-            "default"   : {"PiB": 250, "Pi2": 450},
+            "default"   : "NULLSETTING",
             "sprssDef"  : True,
             "stub"      : "core_freq=%s",
             "valid"     : [150, 651],

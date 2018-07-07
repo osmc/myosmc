@@ -182,3 +182,4 @@ class ConfigFileInterfaceTest(unittest.TestCase):
         cfi = ConfigFileInterface(master_config_location, writer=pseudoWriter)
 
         cfi.write_config_txt(settings_changes)
+        

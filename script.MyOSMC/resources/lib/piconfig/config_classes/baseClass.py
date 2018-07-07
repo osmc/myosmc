@@ -54,7 +54,8 @@ class piSetting(Logger):
                 '- kodi repr: {krep}' \
                 '- new value: {newv}' \
                 '- is_locked: {lock}' \
-                '- changed: {chng}'.format(
+                '- changed: {chng}' \
+                '- is_default: {zdft}'.format(
             name=str(self.name) + '\n\t\t\t', 
             clss=str(self.__class__.__name__) + '\n\t\t\t',
             nDoc=str(self.foundinDoc) + '\n\t\t\t',
@@ -64,6 +65,7 @@ class piSetting(Logger):
             newv=str(self.new_config_value) + '\n\t\t\t',
             lock=str(self.is_locked) + '\n\t\t\t',
             chng=str(self.isChanged()) + '\n\t\t\t',
+            zdft=str(self.isDefault()),
             )
 
     def isChanged(self):

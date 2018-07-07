@@ -1,10 +1,10 @@
-from mock import Mock
+from mock import Mock, patch
 from pprint import pprint
 import os
 import sys
 
 MCR_changes = {
- 'arm_freq': 601,
+ 'arm_freq': 850,
  'audio': 1,
  'config_hdmi_boost': 2,
  'core_freq': 151,
@@ -44,6 +44,7 @@ MCR_changes = {
 base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 sys.path.append(base + '/script.MyOSMC')
+sys.path.append(base + '/script.MyOSMC/resources/lib/common')
 
 samples = base + '/tests/test_data/public_configs/'
 

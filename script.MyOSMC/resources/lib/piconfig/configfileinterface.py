@@ -6,6 +6,7 @@ import config_classes
 
 CLASS_LIBRARY = config_classes.CLASS_LIBRARY
 
+
 def SettingClassFactory():
     '''
         Builds the library of Settings instances. These are used against each line in the
@@ -19,6 +20,7 @@ def SettingClassFactory():
         piclass = CLASS_LIBRARY[typ]
         setting = piclass(name=key)
 
+        # we must set the stub before the default values
         setting.set_stub(attributes['stub'])
         setting.set_default_value(attributes['default'])
         setting.set_valid_values(attributes['valid'])
