@@ -6,7 +6,10 @@ class RangeValue(piSetting):
     '''
 
     def _validate(self, value):
+        ''' Validation always returns None.
 
+            if Validation fails, raise a ValueError.
+        '''
         # Convert the value into a number.
         # Value is likely to be integer, but float is safer.
         value = int(float(value))
@@ -14,7 +17,7 @@ class RangeValue(piSetting):
         if any([(self.valid_values[0] > value), (value > self.valid_values[1])]):
             raise ValueError
 
-        return value
+        return None
 
 
     def _convert_to_kodi_setting(self, value):

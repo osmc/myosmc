@@ -6,7 +6,10 @@ class Boolean(piSetting):
     '''
 
     def _validate(self, value):
+        ''' Validation always returns None.
 
+            if Validation fails, raise a ValueError.
+        '''
         # Convert the value to an integer, if possible
         try:
             value = int(value)
@@ -16,7 +19,7 @@ class Boolean(piSetting):
         if value not in self.valid_values:
             raise ValueError
         else:
-            return value
+            return None
 
     def _convert_to_kodi_setting(self, value):
 

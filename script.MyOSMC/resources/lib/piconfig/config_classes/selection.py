@@ -10,10 +10,13 @@ class Selection(piSetting):
     '''
 
     def _validate(self, value):
+        ''' Validation always returns None.
 
+            if Validation fails, raise a ValueError.
+        '''
         for x in self.valid_values:
             if x[0] == value:
-                return x[0]
+                return None
 
         raise ValueError
 

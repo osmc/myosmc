@@ -6,9 +6,13 @@ class RawString(piSetting):
     '''
 
     def _validate(self, value):
-        ''' This could include length validation, but is not needed right now. '''
+        ''' This could include length validation, but is not needed right now. 
 
-        return value
+            Validation always returns None.
+
+            if Validation fails, raise a ValueError.
+        '''
+        return None
 
 
     def _convert_to_kodi_setting(self, value):
@@ -18,4 +22,4 @@ class RawString(piSetting):
 
     def _convert_to_piconfig_setting(self, value):
 
-        return value
+        return str(value)

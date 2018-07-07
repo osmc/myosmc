@@ -23,7 +23,8 @@ class piSetting(Logger):
         # default, original and new values are stored as the PI CONFIG representations
         self.default_value = 'NULLSETTING'
         self.current_config_value = 'NULLSETTING'
-        self.new_value = None
+        self.current_config_value_kodi_rep = None
+        self.new_config_value = None
 
         # saved_original_line indicates that the line contains an inline comment that
         # begins with '#origional:' which indicates the the original line in the config
@@ -46,29 +47,30 @@ class piSetting(Logger):
 
     def __repr__(self):
 
-        if self.isChanged():
-            return '{name} \n\t\t\t- default: {dflt}\n\t\t\t- current: {curr} \n\t\t\t- kodi repr: {krep} \n\t\t\t- is_locked: {lock} \n\t\t\t- changed to: {newv}'.format(
-                name=self.name, 
-                dflt=self.default_value,
-                curr=self.current_config_value, 
-                krep=self._convert_to_kodi_setting(self.current_config_value),
-                lock=self.is_locked,
-                newv=self.new_value)
-        else:
-            return '{name} \n\t\t\t- default: {dflt}\n\t\t\t- current: {curr} \n\t\t\t- kodi repr: {krep} \n\t\t\t- is_locked: {lock} \n\t\t\t- no change'.format(
-                name=self.name, 
-                dflt=self.default_value,
-                curr=self.current_config_value,
-                krep=self._convert_to_kodi_setting(self.current_config_value),
-                lock=self.is_locked,)
+        return '{name}- class: {clss}' \
+                '- in config: {nDoc}' \
+                '- default: {dflt}' \
+                '- current: {curr}' \
+                '- kodi repr: {krep}' \
+                '- new value: {newv}' \
+                '- is_locked: {lock}' \
+                '- changed: {chng}'.format(
+            name=str(self.name) + '\n\t\t\t', 
+            clss=str(self.__class__.__name__) + '\n\t\t\t',
+            nDoc=str(self.foundinDoc) + '\n\t\t\t',
+            dflt=str(self.default_value) + '\n\t\t\t',
+            curr=str(self.current_config_value) + '\n\t\t\t',
+            krep=str(self.current_config_value_kodi_rep) + '\n\t\t\t',
+            newv=str(self.new_config_value) + '\n\t\t\t',
+            lock=str(self.is_locked) + '\n\t\t\t',
+            chng=str(self.isChanged()) + '\n\t\t\t',
+            )
 
     def isChanged(self):
-
-        # self.log('%s: %s vs %s changed=%s' % (self.name, self.current_config_value, self.new_value, self.current_config_value != self.new_value))
-        return self.current_config_value != self.new_value
+        return self.current_config_value != self.new_config_value
 
     def isDefault(self):
-        return self.default_value == self.new_value
+        return self.default_value == self.new_config_value
 
     def set_stub(self, value):
         self.stub = value
@@ -95,6 +97,7 @@ class piSetting(Logger):
 
     def set_current_value_to_default(self):
         self.current_config_value = self.default_value
+        self.current_config_value_kodi_rep = self._convert_to_kodi_setting(self.default_value)
 
     def set_valid_values(self, valid_values=None):
         if valid_values is None:
@@ -111,10 +114,13 @@ class piSetting(Logger):
 
     def set_current_config_value(self, value):
         self.current_config_value = value
+        self.current_config_value_kodi_rep = self._convert_to_kodi_setting(value)
 
-    def set_new_value(self, value):
-        # self.log(self.name)
-        self.new_value = self._convert_to_piconfig_setting(value)
+    def set_new_config_value(self, value):
+        self.new_config_value = value
+
+    def set_new_config_value_kodi_rep(self, value):
+        self.new_config_value = self._convert_to_piconfig_setting(value)        
 
     def _construct_stub(self):
 
@@ -157,9 +163,9 @@ class piSetting(Logger):
             # self.log('notChanged, found in doc\n')
             return self.original_line
 
-        # Otherwise we construct the stub, and insert the new_value into it.
+        # Otherwise we construct the stub, and insert the new_config_value into it.
         # self.log('constructing line\n')
-        return self._construct_stub() % self.new_value
+        return self._construct_stub() % self.new_config_value
 
     def _validate(self, *args, **kwargs):
         ''' Invalid values should raise a ValueError '''
@@ -176,8 +182,8 @@ class piSetting(Logger):
         raw_values = re.search(pattern, line)
         if raw_values:
             try:
-                raw_value = raw_values.group(1)
-                value = self._validate(raw_value)
+                value = raw_values.group(1)
+                self._validate(raw_value)
             except ValueError:
                 self.log('Line failed validation: \n{line}\nfailed value:{raw_value}'.format(line=line, raw_value=raw_value))
 
@@ -212,8 +218,7 @@ class piSetting(Logger):
                     # a valid value has been found for this setting, set the original value to the one we found
                     # then break out of all the loops
                     self.foundinDoc = True
-                    self.current_config_value = value
-
+                    self.set_current_config_value(value)
                     break
 
         if value is None:
@@ -238,12 +243,12 @@ class Duplicate(piSetting):
         else:
             stub = '#%s'
 
-        self.stub, self.new_value = stub, duplicated_line
+        self.stub, self.new_config_value = stub, duplicated_line
 
     def _validate(self, value):
         ''' Duplicates always pass validation. '''
 
-        return value
+        return None
 
     def construct_final_line(self):
 

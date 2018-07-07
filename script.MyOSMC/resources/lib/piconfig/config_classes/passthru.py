@@ -12,9 +12,12 @@ class PassThrough(piSetting):
         return False
 
     def _validate(self, value):
-        ''' Passthroughs always pass validation. '''
+        ''' Passthroughs always pass validation.
+            Validation always returns None.
 
-        return value
+            if Validation fails, raise a ValueError.
+        '''
+        return None
 
     def _convert_to_piconfig_setting(self, value):
 

@@ -4,11 +4,11 @@
 # "alwaysdrop": if line is matched, drop it,
 
 # "bool"      : booleans are stored as 0 or 1 in the config, 
-#                but 'false' and 'true' in kodi,
+#                but "false" and "true" in kodi,
 
 # "boolspec"  : this is a special type of boolean where the 
 #               representation in the config is a string, but 
-#               kodi will treat it as 'true' if the string is 
+#               kodi will treat it as "true" if the string is 
 #               present,
 
 # "range"     : the data in the config can be anything within 
@@ -117,12 +117,12 @@ MASTER_SETTING_PATTERNS =    {
             "sprssDef"  : True,
             "stub"      : "display_rotate=%s",
             "valid"     : [
-                            ('off',     0),
-                            ('1',       1),
-                            ('2',       2),
-                            ('3',       3),
-                            ('0x10000', 4),
-                            ('0x20000', 5),
+                            ("off",     0),
+                            ("1",       1),
+                            ("2",       2),
+                            ("3",       3),
+                            ("0x10000", 4),
+                            ("0x20000", 5),
                             ],
             "patterns": [{  "id_pattern"      : r"\s*display_rotate\s*=\s*",
                             "ext_pattern"     : r"\s*display_rotate\s*=\s*(\w+)",}
@@ -131,7 +131,7 @@ MASTER_SETTING_PATTERNS =    {
 
         "hdmi_force_hotplug": {
             "type"      : "bool",
-            "default"   : "false",
+            "default"   : 0,
             "sprssDef"  : True,
             "stub"      : "hdmi_force_hotplug=%s",
             "valid"     : [0,1],
@@ -142,7 +142,7 @@ MASTER_SETTING_PATTERNS =    {
 
         "hdmi_edid_file": {
             "type"      : "bool",
-            "default"   : "false",
+            "default"   : 0,
             "sprssDef"  : True,
             "stub"      : "hdmi_edid_file=%s",
             "valid"     : [0,1],
@@ -164,7 +164,7 @@ MASTER_SETTING_PATTERNS =    {
 
         "hdmi_ignore_cec": {
             "type"      : "bool",
-            "default"   : "false",
+            "default"   : 0,
             "sprssDef"  : True,
             "stub"      : "hdmi_ignore_cec=%s",
             "valid"     : [0,1],
@@ -175,7 +175,7 @@ MASTER_SETTING_PATTERNS =    {
 
         "hdmi_ignore_cec_init": {
             "type"      : "bool",
-            "default"   : "false",
+            "default"   : 0,
             "sprssDef"  : True,
             "stub"      : "hdmi_ignore_cec_init=%s",
             "valid"     : [0,1],
@@ -190,8 +190,8 @@ MASTER_SETTING_PATTERNS =    {
             "sprssDef"  : True,
             "stub"      : "hdmi_ignore_edid=%s",
             "valid"     : [
-                            ('off', 'false'),
-                            ('0xa5000080', 'true')
+                            ("off", "false"),
+                            ("0xa5000080", "true")
                             ],
             "patterns": [{  "id_pattern"      : r"\s*hdmi_ignore_edid\s*=",
                             "ext_pattern"     : r"\s*hdmi_ignore_edid\s*=\s*(\w+)",}
@@ -248,8 +248,8 @@ MASTER_SETTING_PATTERNS =    {
             "sprssDef"  : True,
             "stub"      : "dtoverlay=%s",
             "valid"     : [
-                            ('off', 'false'),
-                            ("spi-bcm2835-overlay", 'true')
+                            ("off", "false"),
+                            ("spi-bcm2835-overlay", "true")
                                 ],
             "patterns": [{  "id_pattern"      : r"\s*(?:dtoverlay|device_tree_overlay)\s*=\s*[-\w\d]*spi-bcm2835[-\w\d]*",
                             "ext_pattern"     : r"\s*(?:dtoverlay|device_tree_overlay)\s*=\s*([-\w\d]*spi-bcm2835[-\w\d]*)",}
@@ -257,7 +257,7 @@ MASTER_SETTING_PATTERNS =    {
         },
 
         "hdmi_safe": {
-            "type"      : 'bool',
+            "type"      : "bool",
             "default"   : "false",
             "sprssDef"  : True,
             "stub"      : "hdmi_safe=%s",
@@ -285,9 +285,9 @@ MASTER_SETTING_PATTERNS =    {
             "stub"      : "dtoverlay=%s",
             "valid"     : [
                             # config value              KODI value
-                            ('off'                      , 0),
-                            ('w1-gpio-overlay'          , 1),
-                            ('w1-gpio-pullup-overlay'   , 2)
+                            ("off"                      , 0),
+                            ("w1-gpio-overlay"          , 1),
+                            ("w1-gpio-pullup-overlay"   , 2)
                             ],
             "patterns": [{  "id_pattern"      : r"\s*(?:dtoverlay|device_tree_overlay)\s*=.*w1-gpio",
                             "ext_pattern"     : r"\s*(?:dtoverlay|device_tree_overlay)\s*=\s*([-\w\d]*w1-gpio[-\w\d]*)",}
@@ -295,34 +295,35 @@ MASTER_SETTING_PATTERNS =    {
         },
 
         "soundcard_dac": {
-            "type"      : 'selection',
-            "default"   : 'off',
+            "type"      : "selection",
+            "default"   : "off",
             "sprssDef"  : True,
             "stub"      : "dtoverlay=%s",
             "valid"     : [
-                            ('off'                                                      , 0),
+                            ("off"                                                      , 0),
+                            
                             # string to write back to the config.txt
-                            ('hifiberry-dac-overlay\ndtparam=audio=off'                 , 1 ),
-                            ('hifiberry-dacplus-overlay\ndtparam=audio=off'             , 2 ),
-                            ('hifiberry-digi-overlay\ndtparam=audio=off'                , 3 ),
-                            ('iqaudio-dac-overlay,unmute_amp\ndtparam=audio=off'        , 4 ),
-                            ('iqaudio-dacplus-overlay,unmute_amp\ndtparam=audio=off'    , 5 ),
+                            ("hifiberry-dac-overlay\ndtparam=audio=off"                 , 1 ),
+                            ("hifiberry-dacplus-overlay\ndtparam=audio=off"             , 2 ),
+                            ("hifiberry-digi-overlay\ndtparam=audio=off"                , 3 ),
+                            ("iqaudio-dac-overlay,unmute_amp\ndtparam=audio=off"        , 4 ),
+                            ("iqaudio-dacplus-overlay,unmute_amp\ndtparam=audio=off"    , 5 ),
 
                             # config.txt string                     # KODI value
-                            ('hifiberry-dac-overlay'                , 1 ),
-                            ('hifiberry-dac'                        , 1 ),
-                            ('hifiberry-dacplus-overlay'            , 2 ),
-                            ('hifiberry-dacplus'                    , 2 ),
-                            ('hifiberry-digi-overlay'               , 3 ),
-                            ('hifiberry-digi'                       , 3 ),
-                            ('iqaudio-dac-overlay,unmute_amp'       , 4 ),
-                            ('iqaudio-dac-overlay'                  , 4 ),
-                            ('iqaudio-dac'                          , 4 ),
-                            ('iqaudio-dac,unmute_amp'               , 4 ),
-                            ('iqaudio-dacplus-overlay,unmute_amp'   , 5 ),
-                            ('iqaudio-dacplus-overlay'              , 5 ),
-                            ('iqaudio-dacplus,unmute_amp'           , 5 ),
-                            ('iqaudio-dacplus'                      , 5 ),
+                            ("hifiberry-dac-overlay"                , 1 ),
+                            ("hifiberry-dac"                        , 1 ),
+                            ("hifiberry-dacplus-overlay"            , 2 ),
+                            ("hifiberry-dacplus"                    , 2 ),
+                            ("hifiberry-digi-overlay"               , 3 ),
+                            ("hifiberry-digi"                       , 3 ),
+                            ("iqaudio-dac-overlay,unmute_amp"       , 4 ),
+                            ("iqaudio-dac-overlay"                  , 4 ),
+                            ("iqaudio-dac"                          , 4 ),
+                            ("iqaudio-dac,unmute_amp"               , 4 ),
+                            ("iqaudio-dacplus-overlay,unmute_amp"   , 5 ),
+                            ("iqaudio-dacplus-overlay"              , 5 ),
+                            ("iqaudio-dacplus,unmute_amp"           , 5 ),
+                            ("iqaudio-dacplus"                      , 5 ),
                         ],
             "patterns": [{  "id_pattern"      : r"\s*(?:dtoverlay|device_tree_overlay)\s*=\s*[-\w\d]*(?:hifiberry-d|iqaudio-d)",
                             "ext_pattern"     : r"\s*(?:dtoverlay|device_tree_overlay)\s*=\s*([-\w\d]*(?:hifiberry-d|iqaudio-d)[-\w\d]*)",}
@@ -331,13 +332,13 @@ MASTER_SETTING_PATTERNS =    {
 
         "lirc-rpi-overlay": {
             "type"      : "boolspec",
-            "default"   : 'off',
+            "default"   : "off",
             "sprssDef"  : True,
             "stub"      : "dtoverlay=%s",
             "valid"     : [
-                            ('off', 'false'),
-                            ("lirc-rpi-overlay", 'true'),
-                            ("lirc-rpi", 1)
+                            ("off", "false"),
+                            ("lirc-rpi-overlay", "true"),
+                            ("lirc-rpi", "true")
                             ],
             "patterns": [{  "id_pattern"      : r"\s*(?:dtoverlay|device_tree_overlay)\s*=\s*[-\w\d]*lirc-rpi[-\w\d]*",
                             "ext_pattern"     : r"\s*(?:dtoverlay|device_tree_overlay)\s*=\s*([-\w\d]*lirc-rpi[-\w\d]*)",}
@@ -361,9 +362,9 @@ MASTER_SETTING_PATTERNS =    {
             "sprssDef"  : True,
             "stub"      : "dtparam=gpio_in_pull=%s",
             "valid"     : [
-                            ('off', 0),
-                            ('down', 1),
-                            ('up', 2),
+                            ("off", 0),
+                            ("down", 1),
+                            ("up", 2),
                             ],
             "patterns": [{  "id_pattern"      : r"\s*(?:dtoverlay|device_tree_overlay|dtparam|dtparams|device_tree_param|device_tree_params)\s*=(?:lirc-rpi:)?.*gpio_in_pull[-\w\d]*=",
                             "ext_pattern"     : r"\s*(?:dtoverlay|device_tree_overlay|dtparam|dtparams|device_tree_param|device_tree_params)\s*=(?:lirc-rpi:)?.*gpio_in_pull[-\w\d]*=\s*(\w*)",}
@@ -460,9 +461,9 @@ MASTER_SETTING_PATTERNS =    {
 
     }
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     for k, v in MASTER_SETTING_PATTERNS.items():
         try:
-            print v['stub'] % v['valid'][0]
+            print v["stub"] % v["valid"][0]
         except:
-            print 'Error %s' % k
+            print "Error %s" % k

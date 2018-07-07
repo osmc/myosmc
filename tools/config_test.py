@@ -34,7 +34,7 @@ MCR_changes = {
  'passthrough': 'NULLSETTING',
  'sdram_freq': 301,
  'sdtv_aspect': 2,
- 'sdtv_mode': 1,
+ 'sdtv_mode': 0,
  'soundcard_dac': 1,
  'spi-bcm2835-overlay': 'false',
  'start_x': 1,
@@ -62,29 +62,32 @@ with open(samples + CONFIG_FILE, 'r') as f:
 cfi = ConfigFileInterface(location=samples + CONFIG_FILE, writer=open)
 res, settings = cfi.read_config_txt()
 
-fin = [x for x in res if all([x['clean'].strip(), x['clean'] != 'NULL'])]
+def run_read_check(res):
+    fin = [x for x in res if all([x['clean'].strip(), x['clean'] != 'NULL'])]
 
-fin_orig = [x['original'] for x in fin]
+    fin_orig = [x['original'] for x in fin]
 
-passthroughs = [x['original'] for x in fin if 'passthrough' in str(x['setting'])]
+    passthroughs = [x['original'] for x in fin if 'passthrough' in str(x['setting'])]
 
-fin = [x for x in fin if x['original'] not in passthroughs]
+    fin = [x for x in fin if x['original'] not in passthroughs]
 
-for x in fin:
-    pprint(x)
-    print '\n'
+    for x in fin:
+        pprint(x)
+        print '\n'
 
-missing = []
-for line in orig_lines:
-    if line not in fin_orig:
-        if line.strip():
-            missing.append(line)
+    missing = []
+    for line in orig_lines:
+        if line not in fin_orig:
+            if line.strip():
+                missing.append(line)
 
-if passthroughs:
-    print '\nLINES PASSED THROUGH: \n\t%s' % '\t'.join(passthroughs)
+    if passthroughs:
+        print '\nLINES PASSED THROUGH: \n\t%s' % '\t'.join(passthroughs)
 
-if missing:
-    print '\nLINES MISSING: \n\t%s' % '\t'.join(missing)
+    if missing:
+        print '\nLINES MISSING: \n\t%s' % '\t'.join(missing)
 
 if __name__ == '__main__':
-	cfi.write_config_txt(MCR_changes)
+    # cfi.write_config_txt(MCR_changes)
+    pprint(cfi._update_setting_classes(res, MCR_changes))
+

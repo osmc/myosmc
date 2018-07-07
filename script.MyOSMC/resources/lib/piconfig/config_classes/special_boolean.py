@@ -7,10 +7,13 @@ class Boolean_specialValue(Boolean):
      '''
     
     def _validate(self, value):
+        ''' Validation always returns None.
 
+            if Validation fails, raise a ValueError.
+        '''
         for vv in self.valid_values:
             if value == vv[0]:
-                return value
+                return None
 
         raise ValueError
 

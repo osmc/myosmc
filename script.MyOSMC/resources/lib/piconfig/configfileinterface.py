@@ -176,10 +176,7 @@ class ConfigFileInterface(Logger):
 
             name = setting.name
 
-            value = setting.current_config_value
-            value_in_kodiStyle = setting._convert_to_kodi_setting(value)
-
-            settings.update({name: value_in_kodiStyle})
+            settings.update({name: setting.current_config_value_kodi_rep})
 
         return settings
 
@@ -236,14 +233,19 @@ class ConfigFileInterface(Logger):
             setting = config_line['setting']
 
             try:
-                new_value = new_settings_dict[setting.name]
+                new_config_value = new_settings_dict[setting.name]
+                
+                if new_config_value is None:
+                    raise KeyError
+
             except KeyError:
                 # If for some reason the setting name is not found in the new
                 # setting dict, then just set the new value as the existing config value
-                setting.new_value = setting.current_config_value
+                setting.set_new_config_value(setting.current_config_value)
                 continue
 
-            setting.set_new_value(new_value)
+            # We set the new setting using the kodi representations.
+            setting.set_new_config_value_kodi_rep(new_config_value)
 
 
         for config_line in final_doc:
