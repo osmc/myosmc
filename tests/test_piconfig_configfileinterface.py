@@ -6,6 +6,7 @@ from lib.piconfig.configfileinterface import ConfigFileInterface, SettingClassFa
 import lib.piconfig.config_classes as  config_classes
 from lib.piconfig.mastersettings import MASTER_SETTING_PATTERNS
 
+from test_database_dbinterface import FreshDatabase
 from test_data import master_config_read as mcr
 
 CLASS_LIBRARY = config_classes.CLASS_LIBRARY
@@ -73,6 +74,25 @@ class ConfigFileInterfaceTest(unittest.TestCase):
         self.this_file_loc = os.path.dirname(os.path.abspath(__file__))
         self.location = os.path.join(self.this_file_loc, 'test_data', 'config.txt')
         self.cfi = ConfigFileInterface(self.location)
+
+        self.dbpath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'test_data', 'test.db')
+
+        os.environ['DBPATH'] = self.dbpath
+
+        try:
+            os.remove(self.dbpath)
+        except IOError:   # pragma: no cover
+            pass
+        except OSError:   # pragma: no cover
+            pass
+        except WindowsError:   # pragma: no cover
+            pass
+
+    def tearDown(self):
+        try:
+            os.remove(self.dbpath)
+        except:
+            pass
 
     def test_construction_default_location(self):
         test_cfi = ConfigFileInterface()
@@ -182,4 +202,8 @@ class ConfigFileInterfaceTest(unittest.TestCase):
         cfi = ConfigFileInterface(master_config_location, writer=pseudoWriter)
 
         cfi.write_config_txt(settings_changes)
-        
+    
+    def test_write_to_db(self):
+
+        master_config_location = os.path.join(self.this_file_loc, 'test_data', 'public_configs', 'master_config.txt')
+        cfi = ConfigFileInterface(master_config_location)

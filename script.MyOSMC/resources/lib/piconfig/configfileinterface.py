@@ -1,6 +1,7 @@
 import env
 
 from common import OpenWithBackup, Logger
+from database import dbinterface as dbase
 from mastersettings import MASTER_SETTING_PATTERNS
 import config_classes
 
@@ -44,29 +45,43 @@ class ConfigFileInterface(Logger):
         When the Read method is called it reads the config.txt found at the provided location 
         and produces a list of config_lines.
         config_lines are dicts containing:
-        - the original line from the config.txt
-        - a cleaned up version of that line
-        - the order the line is found in the config
-        - a piSetting instance that has the retrieved validated value
+            - the original line from the config.txt
+            - a cleaned up version of that line
+            - the inline comments found in the line
+            - a piSetting instance that has the retrieved validated value
 
         The final doc contains all the lines of the config file, assigned to a piSetting instance
-        as well as entried for all the settings we track that is NOT found in the config file. This
+        as well as entries for all the settings we track that are NOT found in the config file. This
         is required so that all fields can be populated in the kodi settings.
 
         From the final doc we extract a dictionary of setting names and values. This is what is used to
         populate the settings in kodi.
 
-        The instance can be killed after this.
+        The write_config_to_db method calls the read method and instead of returning a dictionary, 
+        it drops the results into the osmc mysql database. This is optional. I think the prefered method
+        of passing the settings to the GUI is via a python dictionary.
 
-        The user changes their settings in kodi, and this class can recieve back a dictionary of 
-        setting names and values.
+        The instance can be killed after this. We do not need to persist the final document. When the 
+        config is to be written to we re-read the config again.
+
+        The kodi settings are populated either with the return python dictionary or with the data found
+        in the osmc database. The user can then change their settings as desired. The kodi gui must 
+        update the settings in the database or pass the interface the new settings in a dictionary.
+
+        When complete, the write_config method can be provided a new_settings dictionary or one can be 
+        constructed from the read_config_from_db method, and then passed to the write method. 
 
         The config is Read again (it should not have changed in the meantime) to create a new final doc.
         The dictionary is used to update the new_values of each line of the final doc.
-        Where the two values are not the same, the new line is updated when written to the file.
-        Where the values are the same, and found_in_doc is true, the original line is put back in place.
+        Where the two values are not the same, the new line is updated when written to the file. If the
+        setting was in the original config.txt, the original line is appended to the end of the new line
+        in an inline comment.
 
-        FOUND IN DOC
+        Where the new value is the same as the default value, and the suppress_default flag is active, the
+        setting is not written back to the config. (Unless the setting was found in the original config.txt,
+        in which case it is added back with the inline comment.)
+        
+        Where the values are the same, and found_in_doc is true, the original line is put back in place.
 
     '''
 
@@ -200,12 +215,13 @@ class ConfigFileInterface(Logger):
 
         return final_doc, settings
 
-    def write_config_txt(self, new_settings_dict):
+    def write_config_txt(self, new_settings_dict, final_doc=None):
         ''' Backs up the existing config.txt
         Runs through the final doc producing a list of lines to write back to a new config.txt
         '''
 
-        final_doc, _ = self.read_config_txt()
+        if final_doc is None:
+            final_doc, _ = self.read_config_txt()
 
         final_doc = self._update_setting_classes(final_doc, new_settings_dict)
 
@@ -255,6 +271,35 @@ class ConfigFileInterface(Logger):
             setting = config_line['setting']
 
         return final_doc
+
+    def write_config_to_db(self):
+
+        db = dbase.DBInterface()
+
+        _, settings = self.read_config_txt()
+
+        for k, v in settings.items():
+            db.setsetting(str(k), v)
+
+    def read_config_from_db(self):
+
+        new_settings_dict = {}
+
+        db = dbase.DBInterface()
+
+        _, settings = self.read_config_txt()
+
+        for k, v in settings.items():
+            try:
+                new_value = db.getsetting(k)
+            except KeyError:
+                new_value = v
+
+            new_settings_dict[k] = new_value
+
+        return new_settings_dict
+
+
 
 
 # if __name__ == "__main__":

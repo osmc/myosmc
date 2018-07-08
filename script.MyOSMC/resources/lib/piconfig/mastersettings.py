@@ -242,6 +242,18 @@ MASTER_SETTING_PATTERNS =    {
                             ],
         },
 
+        "hdmi_safe": {
+            "type"      : "bool",
+            "default"   : "false",
+            "sprssDef"  : True,
+            "stub"      : "hdmi_safe=%s",
+            "valid"     : [0,1],
+            "patterns": [{  "id_pattern"      : r"\s*hdmi_safe\s*=",
+                            "ext_pattern"     : r"\s*hdmi_safe\s*=\s*(\d+)",}
+                            ],
+        },
+
+
         "spi-bcm2835-overlay": {
             "type"      : "boolspec",
             "default"   : "off",
@@ -253,17 +265,6 @@ MASTER_SETTING_PATTERNS =    {
                                 ],
             "patterns": [{  "id_pattern"      : r"\s*(?:dtoverlay|device_tree_overlay)\s*=\s*[-\w\d]*spi-bcm2835[-\w\d]*",
                             "ext_pattern"     : r"\s*(?:dtoverlay|device_tree_overlay)\s*=\s*([-\w\d]*spi-bcm2835[-\w\d]*)",}
-                            ],
-        },
-
-        "hdmi_safe": {
-            "type"      : "bool",
-            "default"   : "false",
-            "sprssDef"  : True,
-            "stub"      : "hdmi_safe=%s",
-            "valid"     : [0,1],
-            "patterns": [{  "id_pattern"      : r"\s*hdmi_safe\s*=",
-                            "ext_pattern"     : r"\s*hdmi_safe\s*=\s*(\d+)",}
                             ],
         },
 
@@ -382,6 +383,7 @@ MASTER_SETTING_PATTERNS =    {
                             ],
         },
 
+
         "arm_freq": {
             "type"      : "range_var",
             "default"   : "NULLSETTING",
@@ -462,6 +464,11 @@ MASTER_SETTING_PATTERNS =    {
     }
 
 if __name__ == "__main__":
+
+    # from pprintpp import pprint
+
+    # pprint(MASTER_SETTING_PATTERNS)
+    
     for k, v in MASTER_SETTING_PATTERNS.items():
         try:
             print v["stub"] % v["valid"][0]

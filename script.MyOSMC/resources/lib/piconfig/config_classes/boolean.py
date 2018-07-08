@@ -29,7 +29,7 @@ class Boolean(piSetting):
             else:
                 raise
         except:
-            return 'NULLSETTING'
+            return 'false'
 
 
     def _convert_to_piconfig_setting(self, value):

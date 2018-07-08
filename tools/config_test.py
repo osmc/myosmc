@@ -89,6 +89,10 @@ def run_read_check(res):
         print '\nLINES MISSING: \n\t%s' % '\t'.join(missing)
 
 if __name__ == '__main__':
-    # cfi.write_config_txt(MCR_changes)
-    pprint(cfi._update_setting_classes(res, MCR_changes))
 
+    # run_read_check(res)
+    # cfi.write_config_txt(MCR_changes)
+    # pprint(cfi._update_setting_classes(res, MCR_changes))
+
+    os.environ['DBPATH'] = '/home/k/test.db'
+    cfi.write_config_to_db()

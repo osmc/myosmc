@@ -32,4 +32,4 @@ class Selection(piSetting):
 
         for config_string, kodi_value in self.valid_values:
             if value == config_string:
-                return kodi_value
+                return str(kodi_value)
